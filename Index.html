@@ -1,0 +1,2307 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>SIMADU - MTs Ma'arif NU 1 Wangon</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js" crossorigin></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js" crossorigin></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.3/babel.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; touch-action: pan-x pan-y; background-color: #f1f5f9; }
+            font-family: 'Inter', sans-serif; 
+            touch-action: pan-x pan-y; 
+            background-color: #f1f5f9; 
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none; 
+        }
+        input, textarea, select {
+            -webkit-user-select: auto !important;
+            -moz-user-select: auto !important;
+            -ms-user-select: auto !important;
+            user-select: auto !important;
+        }
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: #f1f5f9; border-radius: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+        
+        .highlight-row { animation: highlightAnim 2.5s ease-out; }
+        @keyframes highlightAnim {
+            0% { background-color: #fef08a; }
+            100% { background-color: transparent; }
+        }
+        
+        .modal-enter { animation: fadeIn 0.2s ease-out forwards; }
+        .modal-content-enter { animation: scaleIn 0.2s ease-out forwards; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes scaleIn { from { transform: scale(0.95); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+        
+        input[type=number]::-webkit-inner-spin-button, 
+        input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+        input[type=number] { -moz-appearance: textfield; }
+    </style>
+</head>
+<body class="text-slate-800 antialiased">
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect, useRef } = React;
+
+        const INITIAL_STUDENTS = {
+          '7A': [
+            'Afiif Ibnu Aziz', 'Ahmad Fauzan Alevin', 'Alif Kusnandar', 'Alim Darmawan', 'Azka Prima Samudera',
+            'Azwa Zahwa Bilqis', 'Dhea Evrilia Nur\'Aini', 'Dwi Akbar Kurniawan', 'Dwi Alfi Setyaningsih',
+            'Fairel Ahza Argani', 'Fatkhan Afkar Sakhi', 'Iltizam Zidan Maulana', 'Isfahani Faridatunida',
+            'Istikomah', 'Karunia Cahya Alenna', 'Keisha Ayunindya Zahira', 'Kevin Putra Prilian',
+            'Luqman Fadilah', 'Muhamad Nur Fadli', 'Nadira Khumaira Zahra', 'Najwa Assyifa Zahrani',
+            'Nimas Ayu Mustikarini', 'Niya Rahmawati', 'Radhitya Ardani', 'Rahmania Salindri Munfarida',
+            'Raras Naura Salsabila', 'Restu Muhammad Akbar', 'Syahrul Aryanazam', 'Umar Habib Musthofa',
+            'Vieta Aryani', 'Zaneta Naila Sabrina', 'Ziada Zahra'
+          ],
+          '7B': [
+            'Abyudaya Akbar S', 'Alan Hariansyah', 'Aulia Nurul R', 'Bilqis Indri Herawati', 'Devania Naurra Bulan Maulida',
+            'Dika Arya Saputra', 'Dzikrikal Ramadhan', 'Eki Zaldi Lazaroni', 'Fadila Resti Meilani', 'Fiqri Rachman Saputra',
+            'Friska Mayfatul Khofifah', 'Habibi Syihabsani', 'Huda Mahdy Assajid', 'Ilham Maulana', 'Jovan Sinantara P',
+            'Lulu Nafisah Yafi .S', 'Malky Waziful Khalil', 'Muhamad Abi Alfianzar', 'Naura Nadhifa Akmal', 'Novi Indahsari', 'Qori Aena Sakti .P', 'Rahmat Saputra', 'Raihan Dwi Subekti', 'Sadiid Tri Zakwan',
+            'Sangaji Ilmanagara', 'Shakila Diaz Permata', 'Sifara Pranindita Ayunda S.P', 'Vita Kumalasari', 'Weli Silwia',
+            'Yumna Nadhira Thafana', 'Zaenal Zairul Arifin', 'Ziada Zahra' 
+          ],
+          '7C': [
+            'Akbar Nur Daffa P', 'Alika Eka Putri', 'Aqilla Ananda P.', 'Arum Yulianti', 'Asifa Farzana',
+            'Aufa Faris Asyham Muhadzib', 'Aziz Al Roufiq', 'Azrul Gian Ardhani', 'Bima Satria', 'Brams Prasetyo',
+            'Dea Lova Dwi Asifa', 'Dhindha Ayu Lutfitasari', 'Eka Rifqi Adiansah', 'Fahmi Idris Alkafi', 'Fatkhan \'Aqil Syifaa\'',
+            'Fattaah Fajriyan', 'Galuh Wakhid Arrahman', 'Hafizd Dzaki Putra Pradipta', 'Hanum Febriani', 'Hilmi Berkah Hidayah',
+            'Ibnu Eza Muzaki', 'Nada Fajria Salsabila', 'Nada Farah Maulida', 'Natasya Adelia Zahra', 'Nazila \'Aina Fatiqoh',
+            'Rehan April Liano', 'Rindi Fitaningsih', 'Shahfitri Hayyu I.', 'Tazqiatuz Zahra', 'Wildan Athya Septian',
+            'Zafran Rafansyah Alfarizi', 'Wilisa Enjelrita', 'Trisna Olivia'
+          ],
+          '7D': [
+            'Abiu Abdu Mubarok', 'Aditya Prasraya Sakti', 'Ahmad Faiq Kamaludin', 'Alby Luthfy Fachry', 'Arfa Putra Al Manaf',
+            'Atika Zahra Rafika', 'Ferlin Nuri Dwi Anggraeni', 'Fiki Dwi Musyafar', 'Hanan Shafy Muzhaffar', 'Havena Rita Maulidya',
+            'Izzul Mughni Alfian', 'Khanisa Humaira Firdani', 'Mahesa Deva Dwi Saputra', 'Mikayla Nasya Azzahra', 'Muhammad Ahza Abizar Saputra',
+            'Oskar Didik Pranoto', 'Qanita Fadillah Hasna', 'Qiara Kalila Putri', 'Rafi Addzaki', 'Raka Nur Fauzan',
+            'Rara Aliana Saputri', 'Renata Nur Hasanah', 'Rizky Akbar Faizal Aditya', 'Sabrina Aqila Cinta Raksania Bilqis', 'Shean Samau Al Amaro',
+            'Tata Aufa Mahmud', 'Unzy Risyalata', 'Vannisa Zilziana Putri', 'Wulandari Mirza Aryo'
+          ],
+          '7E': [
+            'Ahlan Ibrahim', 'Aisyah Gangsar Rojabani', 'Alfariel Nurdaffa A', 'Aprilia Devit Kristina Putri', 'Arman Syafiq Amirudin',
+            'Auni Tri Maharani', 'Bhanu Ahza Firdaus', 'Desvita Aurelina Prijaya', 'Fabiyan Lutfi Amar', 'Faeyza Adika Agustiyar',
+            'Fathan Aulia Nur Mahardika', 'Fega', 'Fegi', 'Fero', 'Fristi Dwi Lestari',
+            'Frizka Febriana', 'Ilham Bagus Satria', 'Jemes Hasuem Zio', 'Kanaya Kenzie', 'Muhammad Fadillah Al Abyan',
+            'Muhammad Hibaan Attaqiy', 'Muhammad Reynand Zakaria', 'Nadhilah Azmah', 'Naifatul Isqiqoh', 'Najwa Seraya',
+            'Natasya Adzania', 'Putri Nur Anggraeni', 'Salsabila Putri Ramadhani', 'Shabir Nur Dziban', 'Sofiatul Zulfa',
+            'Syafa Aurelia Khanza', 'Wahyu Yoga Pratama'
+          ],
+          '7F': [
+            'Adriyan Pradipta', 'Aisyah Nur Fadillah', 'Alif Nur Fajri', 'Alifah Nur Aeda', 'Amira Khanza Az-Zahra',
+            'Anindya Nayara Yumna', 'Arju Illah', 'Ayuni Puspa Ramadani', 'Azalea Khiar Ramadhani', 'Azhar Ghani Al-Ghazali',
+            'David Oktaviano Andiansyah', 'Fathan Wijaya Pratama', 'Fatin Nur Karimah', 'Fauzan Hilal Pratama', 'Frazata Abas Hidayat',
+            'Hamdan Al Amin', 'Hanifah Putri Khairunnisa', 'Kinara Nabil Az-Zafhran', 'Lutfan Muzaki', 'Muhammad Al Fattih Suyitno',
+            'Muhammad Rayyan Azfar', 'Mutiara Nur Safa', 'Mutiara Nur Sifa', 'Nadia Ramadhani', 'Nafisha Zasqina Solehah',
+            'Nailah Salma Salsabilah', 'Naura Okalina', 'Raihan Alwi Fahrezi', 'Rohman Sya\'Bani', 'Surya Aditia',
+            'Talitha Qotrunada', 'Valena Apricia', 'Wildzan Naufal Azhar'
+          ],
+          '7G': [
+            'Afiza Ifra Farzana', 'Afnan Atma Purnama', 'Ainun Cahya Oktafiani', 'Albert Desta Anugrah', 'Ardanu Gusti Kusuma',
+            'Artha Karunia Nur Zaky', 'Athifa Nur Inaya', 'Briliant Syafi Qois', 'Delita Zalfa Abidah', 'Desta Pandu Pratama',
+            'Dika Nagata Faishal', 'Dina Azahra', 'Erbina Yoan', 'Fabian Damar P.', 'Fadil Rizki Bahtiar',
+            'Fattah Ilham Alfarizi', 'Juan Adipati Pranata', 'Kaka Riski Pratama', 'Keisya Adha Maulana', 'M.Faqi Nur Hidayat',
+            'Marchella Angelica Bintoro', 'Meynanda Karunia Putri', 'Moza Pramono', 'Muhammad Rasyid Aprillio', 'Muhammad Revano Ardiansyah',
+            'Nadhifa Marwaha', 'Riffai Fajar Maulana', 'Rizky Ardiansyah', 'Syakila Aiko Radela'
+          ],
+          '7H': [
+            'Aditiya Mahya', 'Agung Riyanto', 'Airlangga Syahputra Margiono', 'Alkhalif Bagus P', 'Ayayit Nur Husen',
+            'Azmi Hail Fataa', 'Chairli Ramadani', 'Daffa Arya Ghussan', 'Dekha Sahal Aliq', 'Denny Subagyo',
+            'Desta Eka Pratama', 'Dika Saputra', 'Farel Adinata Prayoga', 'Ferdinan Prasetio', 'Haura Nadif Afifah',
+            'Hiva Sema Yulita', 'Jacinda Wafiqah Ramania Syarif', 'Kinara Ahza Izdihar', 'Natasya Saqila Aliyanor', 'Naura Tri Cahyaningsih',
+            'Rafa Azka Azizan', 'Rafa Yusuf Iman', 'Rafardhan Athalla El Wafi', 'Raffa Narendra Putra', 'Rafka Maulana Arrasyid',
+            'Rona Jinan Kamilah', 'Sevan Apriyanto', 'Shakila Nadhita Putri', 'Virzhi Hafidzha Rusliana'
+          ],
+          '8A': [
+            'Adila Zaneta', 'Agung Jatmiko', 'Andisti Eka Saputri', 'Aqila Azzahra Atthafunisa', 'Aqila Jibran Azzahidi',
+            'Arnila Wahyundha Kusshifa', 'Arsya Sakti Abithah Putra', 'Avisa Elvaretta Santoso', 'Azka Missti Fairuuz',
+            'Azqhana Zhaqia Octaviani', 'Bibit Masita', 'Dava Alfaro Ramadan', 'Dwi Kholiffatul Fahri', 'Dzakira Nadia Akhyar',
+            'Fahru Wicaksono', 'Faishal Fa\'Iq Windiarto', 'Fatihah Putih Arundati', 'Hibban Ghozy Maulana', 'Iqbal Awalintar Putra',
+            'Jaka Arif Kaindra', 'Kayla Putri Ramadhani', 'Kenzie Widjaya', 'Malikha Avitha Mandasari', 'Muhamad Rafi Ardi Naufal',
+            'Najwa Khaira Wilda', 'Naura Hazna Annida', 'Nayla Dwi Meilani', 'Nila Nurul \'Arofah', 'Nur Afar Romadlon',
+            'Praditya Agha Budiman', 'Regina Mei Ayu Wardhani Prita N', 'Rizki Bintang Nur Hidayat', 'Siti Nur Aisyah Putri',
+            'Tsurrayya Yasmin Nur Anisah', 'Varisa Aqila Ainunnisa', 'Vestia Nur Azzafa'
+          ],
+          '8B': [
+            'Achmad Alvin Sururi', 'Afan Oktavian', 'Airin Wulandari', 'Alif Al Muqomul Amin', 'Aqila Lisa Tahzani',
+            'Azzahra Bella Faradila', 'Delisa Dwi Azlina', 'Dwi Cantik Elfiana Sembiring', 'Fatin Vanisa Oktaviani', 'Ferliansyah Anggraeni Prameta',
+            'Firza Rahman Alghifari', 'Isna Yulianti', 'Jesika Rosalinda', 'Juan Zhilgwyn Oxxy Setiawan', 'Kharis Maulana Abdillah',
+            'Lutfi Sakhi Zaidan', 'Marcel Adam Saputra', 'Maulana Dama Afwani', 'Muhamad Abdulloh Wahyu Sakti Aji', 'Muhammad Firdaus Az Zukhruf',
+            'Muthiya Azahra', 'Nayshila Anggita Putri', 'Nevisya Putri Anindia', 'Nizar Maulana Sarif', 'Novita Ade Cahyani',
+            'Nugraha Syarif', 'Nurul Balqis', 'Prabu Keanu Airlangga', 'Raf Agung Wijaya', 'Regina Rihardini',
+            'Reka Sevita Devi', 'Reyhan Juneka', 'Rizky Rafa Zaky', 'Rosqi Fadilah', 'Safira Bunga Sa`Baniah',
+            'Yusrina Assyabiya Rafifa', 'Zahro Munaiqibatul\'Ulya'
+          ],
+          '8C': [
+            'Aqila Andara Khanza', 'Aysha Reski Afriyanti', 'Brian Alifiandra Rayhantama', 'Devina Dwi Safara', 'Dinda Larasati',
+            'Faiz Muhammad Wasri', 'Faizal Raditya Pratama', 'Farhan Nurrohman', 'Fatan Maulana Shidiq', 'Fathin Lailatun Nafingah',
+            'Ferlin Dwi Anindia', 'Ferly Cahya Dwi Putra', 'Hafizh Maulana Dzaki Ibrahim', 'Haris Dwi Darmawan', 'Hilma Desfita Nur Hikmah',
+            'Ibnu Nafi Faeyza', 'Jesen Vanezo', 'Kevin Abdul Latif', 'Kinan Suro Panggalih', 'Kirania Nevila Pradestya',
+            'Meiza Ayu Lestari', 'Mohammad Zidan Alfahri', 'Muhamad Khoirul Anam', 'Muhammad Azkha Aldiansyah', 'Nabila Anindhita Ramadhani',
+            'Nur Lailatun Ni\'Mah', 'Rafa Maulana', 'Rafif Mumtaz Annizar', 'Ragil Bari Maulana', 'Rayfan Rizky Pratama',
+            'Rega Arya Ardiansyah', 'Robby Al Faqih', 'Siti Yuliana Afika', 'Swandi Tata Nazurah', 'Syaqina Aqlan',
+            'Thifaal Ibtihal', 'Wildan Futhona', 'Wulan Latifatul Maghfiroh'
+          ],
+          '8D': [
+            'Adam Maulana Ahsan', 'Airilyn Laura Faustin', 'Alfiyan Zaki Ramadhan', 'Alif Alviano', 'Alifah Istiqomah',
+            'Alky Dwi Santoso', 'Alvito Afriliano', 'Alzena Lalita Rahma', 'Anatasya', 'Aqilla Talita Phupy Izzati',
+            'Aryya Maulana', 'Ayesha Siyena Mikhayla', 'Ayyun Nala Nafi\'ah', 'Cika Fia Amelia', 'Daffa Khoeru Prayogi',
+            'Destianita Enjellina', 'Desty Ajeng Suryaningrum', 'Dita Dwi Afriani', 'Endah Futaihah Rizqi', 'Fairuz Shidqi Aufa Bahtiar',
+            'Fhiko Zaky Afyansyah', 'Galih Pratama', 'Hanifah Febriana Mandiri', 'Haura Nazhifa', 'Ikhwan',
+            'Jildan Mahesa', 'Marwah Laili Malihah', 'Muhammad Alif', 'Muhammad Farel Subekti', 'Muhammad Ikmal Maulana',
+            'Putri Nur Cholifah', 'Rafa Fairuz Celestyn', 'Rafka Juna Saputra', 'Reza Adi Saputra', 'Rezzi Alfiando Saputra',
+            'Rijal Rafli Syah', 'Selomita Ayu Prameswari'
+          ],
+          '8E': [
+            'Afiqah Salsabila Yusuf', 'Aflah Shafa Yafi\'ah', 'Aisyah Ayudia Inara', 'Akrom Farras Nabil', 'Awan Wilis Setia',
+            'Catherine Azaria', 'Dea Kurnia Naafiah', 'Desprika Maharani', 'Ernes Revan Pratama', 'Fadil Dwi Saputra',
+            'Fairel Atharis Khalif', 'Fandi Ramadhan', 'Farrel Naufal Dewanta', 'Helmi Nurul Khasanah', 'Indi Aulia Turrohmah',
+            'Khoeru Nur Navisa', 'Messi Daffa Fauzan', 'Muhamad Raihan Al Masruroh', 'Muhammad Bintang Pratama', 'Muhammad Ihsan Fakhri',
+            'Muhammad Juna Ramadhan', 'Nafiz Nabihan', 'Noval Dwi Syahputra', 'Qinan Dwi Saputra', 'Raihan Aska Dhia Pratama',
+            'Raisa Muji Maulidya', 'Refan Fernando', 'Risma Jumiarti', 'Rizal Bahir', 'Sinar Syifa\'ul Qulb Permana',
+            'Syiffa Firhania Wahidin', 'Wahyu Yoga', 'Yhanaz Maulana', 'Yuanita Dwi Rahmadani', 'Zaky Huzaifah', 'Fathan Aqil Ibawa'
+          ],
+          '8F': [
+            'Aditya Bagus Novriansyah', 'Aditya Rifqi Adriyansyah', 'Aji Satrianto', 'Alfi Syawalliyah', 'Allyka Charlotta Prasetyo',
+            'Astuti', 'Bahgrain Abdika Fahrizi', 'Carmelita Nayla Nadhifa', 'Dewangga Nur Sa\'Bani', 'Elisa Nofiana Putri',
+            'Faiza Putri Muliani', 'Gayuh Rahma Tanjali', 'Ghaisan Fadelian Rosya', 'Iskarima Nur\'Aeni', 'Kaela Masruroh',
+            'Khaela Suliningsih', 'Khair Rizqi Digdaya', 'King Oktara', 'M. Luthfi Al Abrar', 'Mawati',
+            'Muhammad Qiannas Al Hafiizh', 'Muhammad Rannu Dzakwan', 'Muhammad Rizki Julianto', 'Mu\'izza\' Khoirunnisa', 'Mustofa Fauzi',
+            'Nadil Hali Anafis', 'Ngindatul Ainun Esa', 'Novela Alya Alzera', 'Rezki Fajrianto', 'Robina Firlani',
+            'Romie Aizar Lazuard Al Manafy', 'Rona Iswatun Atik Robina', 'Salwa Fida Azzahra', 'Sekar Kinan Yustrianti', 'Yogi Hikmah Nurmajiid'
+          ],
+          '8G': [
+            'Adiba Safa Khoerul', 'Adryan Gian Alamsyah', 'Askha Alfatun Nisa', 'Asyilla Fitri Ramadhani', 'Ayu Dya Handayani',
+            'Azril Dwi Setyawan', 'Azzahra Diah Mahasetia', 'Bagas Fikri Amannulloh', 'Daylen Afandi', 'Dhixria Nur Fitriana',
+            'Disa Alviano Ananta', 'Faeezah Nadira Putri', 'Fani Ainum Maharani', 'Farel Ibni Fawzan', 'Fathimah Azahra',
+            'Kafa Nizam Fahri', 'Kaisha Lanang Adriansah', 'Kavka Aditiya Arava', 'Kevin Khoirul Azam', 'Khansa Qonitah Hanania',
+            'Marsya Sailla Anggraeni', 'Merry Febriana Ratna Sari', 'Muhamad Denis El Amin', 'Muhammad Ali Almu\'Is', 'Naufal Kurniawan',
+            'Novara Dinda Wibawa', 'Nur Firda Maulina', 'Puguh Dwi Ridho Setia Nur Hidayat', 'Putri Zakiyyah Sari', 'Ravel Arva Aditya',
+            'Relif Revano Putra', 'Rizky Ramdhani', 'Rizky Yuda Arkana', 'Sarif Asman', 'Xavi Exca Putra Cassami', 'Zidan Akbar Saputra'
+          ],
+          '8H': [
+            'Ahmad Alvino', 'Ahmad Nur Faizal', 'Al Farrellian Esa Raditya', 'Alfindo Derby Pratama', 'Alvarizi Yanuar Saputra',
+            'Arasyya Putri Fatha Rezkya', 'Arkham Safik Maulana', 'Bunga Putri Cania', 'Chelsea Ramadina Hermanto', 'Farrel Khoerul Azis',
+            'Fathiin Aliim Mutawakil', 'Fathin Khoirunnisa', 'Fatihaturohmah', 'Fauzia Adelya Kholifah', 'Felita Audie Marchelly',
+            'Fino Saputra', 'Hafizh Al Ghifari', 'Hasan Yahya', 'Helen Shafiqah', 'Ihsan', 'Irbah Jihan Najwa', 'Kenza Marvel Raffasya', 'Khalifatus Syaqinah', 'Khalilatul Maulida', 'Khoirul Azmi',
+            'Maura Maulidha Al Syafa', 'Muhamad Tristan Aprilio', 'Muhammad Zaki Aufa', 'Nabila Janah', 'Nabila Putri Yesi Amalia',
+            'Pradisstia Boy Cavalera', 'Rahmat Hidayatullah', 'Renata Rania Putri', 'Ridho Alfa Rizky', 'Ridho Rifa\'i',            
+            'Ryzqi Tri Maulana'
+          ],
+          '8I': [
+            'Adam Farfan', 'Adit Rafa Alfaro', 'Akilla Rizki Aprilia', 'Alana Amania Setiyawan', 'Angellica Ayu Ningsih',
+            'Anindya Safi Syakira', 'Arya Yaffi Zaim Pujiono', 'Bagus Sidiq Zakariya', 'Belva Letisya Putri', 'Dafa Hanif Mahardika',
+            'Dini Dwiana Lestari', 'Farida Putri Destari', 'Faris Setiawan', 'Haqiqi Abdul Syafiq', 'Ibra Najib Arjuan',
+            'Ilham Orlando', 'Janur Azzukhruf Malik', 'Khusnul Hernata Tasya', 'Meisya Dwi Mulyani', 'Mikayla Zahra Putri Arifni',
+            'Mohammad Akbar Rivaldi', 'Muhamad Khoirul Azzam', 'Muhammad Rifai Rabbani', 'Naufal Rahmadani', 'Naurah Nabilah Naflah Zahirah',
+            'Novrin Althaf Maulana', 'Nur Aliffa Turohman', 'Pandu Cahya Bekti', 'Rafi Aditiya Putra', 'Resti Lili Rahmawati',
+            'Sahrini Junianingsih', 'Sari Wulandari', 'Sekar Ayu Yuliana', 'Shafa Maulidya Fairiz', 'Verlita Rahmawati',
+            'Wahyu Pratama', 'Yurizki Putra Wiguna', 'Zazka Abimanyu'
+          ],
+          '8J': [
+            'Ahmad Fahrurrozi', 'Ajil Sirru Jalil', 'Akbar Putra Pratama', 'Arkana Tsaqif Hibatullah', 'Arlan Darma Saputra',
+            'Azzam Haedar Dwi Putra', 'Cantika July Ramadan Erdany', 'Daniel Arya Setia Dharma', 'Delisa Alifa Sambila', 'Dinda Candra Kirana',
+            'Esa Wahyu Ma Rufi', 'Fajar Dwi Permana', 'Febi Siskia Ayu Wardhani', 'Febrina Saffa Ardani', 'Fiqri Al Faozan',
+            'Indah Septiani', 'Lazzero El Bian Pratama', 'Meita Nur Fadilah', 'Muhamad Nizar Arju Baihaqi', 'Muhamad Zaki Febriansyah',
+            'Nilna Azkia Rohmah', 'Nilna Syifa Zahro', 'Raihan Arif Sulaiman', 'Reza Dwi Pradipta', 'Rizqi Aji Rahmadi',
+            'Salamah Ekasafitri', 'Sarah Afaf Adwa', 'Shafah Desinda Putri', 'Shafi Inas Faiqah', 'Siti Sholeha',
+            'Sultan Adji Fahreza', 'Valenzka Arsylia Byonita', 'Varah Dita Ayuningtyas', 'Wildan Aryanto', 'Yahya Abdullah Masya',
+            'Yanuar Putra Andrean'
+          ],
+          '9A': [
+            'Adhwa Fauziyah Ramadhani', 'Ahmad Nizabul Manan', 'Aksa Syaban Putra', 'Alvin Ferdiansyah', 'Arzafa Asharazaq Novavitanto',
+            'Assyadulloh Maulana Alfaqih', 'Asyifa Arza Ismain', 'Ayu Khoirunnisa', 'Azza Firnanda', 'Cahya Alfi Nur Sa Adah',
+            'Chaca Aulia Khamaratih', 'Chintya Cahyani', 'Diandra Kirani', 'Diva Queenita Rahmadhani', 'Evelyn Yulia Zaenal',
+            'Fernanda Putra Mahreza', 'Fiolin Qotrunnada Nufus', 'Gina Anggraeni Anasywa', 'Hafshah Zakiyah Zulfa', 'Kenzi Naizar Al Dzaki',
+            'Maulydiana Talitha Hayu Muchsin', 'Muhamad Irfan Ramadhan', 'Muhamad Zulkarnain', 'Muhammad Yaqut Al Arsy', 'Muhammad Sabi Hibatulloh',
+            'Muhammad Zufar Arganto', 'Mulyana Ahsyahfa Wijayanti', 'Nadia Anitasari', 'Naira Dwi Ufaira', 'Nayla Syifa Rahma Aprilia',
+            'Nova Adi Pratama', 'Raditya Aldiansyah Saputra', 'Rena Afriyani', 'Setiawan Galih Ragil Saputra', 'Setya Rizky Saputra',
+            'Sylvia Nur Aini', 'Wafira Juliana Saputri', 'Wulan Inka Novebriyanti'
+          ],
+          '9B': [
+            'Adi Indra Setiyawan', 'Ahmad Bayhaqi', 'Al Mahesa Keryl', 'Alin Rahmawati Dewi', 'Andin Zulfa Azizah',
+            'Andini Nurulita Saputri', 'Ardi Naufal Aziz', 'Aurin Erlinda Khiar', 'Bachtiar Ersyad Al Hakim', 'Bilqis Maesaroh',
+            'Calvin Meika Saputra', 'Chaerul Alifah', 'Dwiky Maulana Faathir', 'Elvina Dini Maheswari', 'Fadly Dwi Abdillah',
+            'Fen Nanda Kasih', 'Firza Mei Dinata', 'Hafidz Maulana Subekti', 'Haikal Gilang Akbar', 'Ibnu Muzaqi Syukur',
+            'Lovina Danis Meiliyana', 'Marlinda Khusnul Khotimah', 'Mohamad Jalaludin Majid', 'Muhammad Sun\'an', 'Muhammad Syazwan Nasrulloh',
+            'Muhhamad Ulil Abshor', 'Reisya Azka Ardhini', 'Rizky Fitriyanto', 'Rizky Maulana', 'Sakti Akbar Manulloh',
+            'Selvi Fatimatus Zahra', 'Sifa Karunia Setiany', 'Siti Hasnah Mulyani', 'Ulin Rahmatika Putri', 'Valenza Zaneta Meka',
+            'Venisya Catur Wulandini', 'Zaki Zafar Efendi', 'Zianka Kizania Amorete Bhota'
+          ],
+          '9C': [
+            'Afika Putri', 'Ahmad Adzkiya Lutfi', 'Al Zarkha Ibrahim', 'Alzam Adli Rauf', 'Amora Gatan Nugroho',
+            'Andaru Adnan Waliyulloh', 'Andini', 'Aryadika Ramadani', 'Bangkit Wahyu Meilano', 'Brian Aziz Nurrofiq',
+            'Damar Abian Fatih', 'Danu Wiguna Rhomadon', 'Desta Priana', 'Fadli Saputra', 'Fahriza Yusuf Ramadhan',
+            'Famela Latifah Ginawati', 'Farrel Khafid Luthfitama', 'Fathih Fajar Rizkya', 'Ficki Adistian', 'Frida Naufarisa',
+            'Intan Nur Indriani', 'Juna Rahmawidi', 'Khairan Pancayuda', 'Khalifah Widya Nur Nafawati', 'Lyla Ayu Octaviani',
+            'Muhammad Afiq Maulana', 'Muhammad Fadhil Ramadhan', 'Natasya Dwi Febriyani', 'Nenti Nur Aini', 'Nicholas Gading Sebastian',
+            'Nurul Fahmi', 'Rena Defiana', 'Rio Alvin Pratama', 'Sabrina Mia Lestari', 'Salasbilla Artanti Cahya Ningrum', 'Shara Syafinatunisa Budiliasari', 'Ubaidillah Zidan Abqori'
+          ],
+          '9D': [
+            'Ade Prianto', 'Adesta Laelatul Gina', 'Adlu Aziz Manjaya', 'Agista Fahsya Almuizz Ramadhan', 'Ajeng Setia Asih',
+            'Alfaro Hirasah Rahbani', 'Anindia Dhea Pratama', 'Anugrah Rida Agil Kurniawan', 'Arfa Zahrotun Najwa', 'Arlova Sashiera Narastania',
+            'Avril Aditiya Pratama', 'Azka Ahmad Nifail', 'Citra Fauziyyah Ramadhani', 'Fadil Fatan Hudzaefah', 'Fadli Fairus',
+            'Friska Apriliani Putri', 'Ilmas Trimulya', 'Jesica Anggun Permadani', 'Kanaya Aulia Rahma', 'Khalifah Nur Azizah',
+            'Kharis Ikhsan Maola', 'Mauza Rahmadani Yasmin', 'Muhammad Alfine Al\'Arasy', 'Muhammad Yusuf Khoir', 'Nae\'ema Maulani',
+            'Nur Alifah', 'Palesya Restu Alena', 'Pratama Dwi Ananta', 'Queensa Aulia Ramadhani', 'Rafka Raditya Pratama',
+            'Raza Albar Maulana', 'Rehan Aditiya', 'Rini Sugiharti', 'Satria Putra Ramadhan', 'Usni Latifah',
+            'Valencia Bilqis Apriliani', 'Yesha Nur Rohmah'
+          ],
+          '9E': [
+            'Alif Fahmi Zaman', 'Angga Reksha Permana', 'Arrozaq Bintang Prasetyo', 'Ayu Virdianni', 'Aznu Alibia Saputra',
+            'Azzahwa Rivana Aprilia', 'Cahya Dwi Safira', 'Desvita Fajrini', 'Dewa Ainurfathurohman', 'Dinda Agustin Ramadani',
+            'Faid Farzana', 'Hilwah Insan Mahadika', 'Irfa Fadli Kamaludin', 'Isnaeni Oktaviana', 'Jaenal Arifin',
+            'Janitra Kaila Tabina', 'Kemal Ardiansyah', 'Levigna Akhsanul Fewianica', 'Livia Nur Azizah', 'Maitsa Ananta Pratiwi',
+            'Marwah Aura Izdihaar', 'Maulana Sidiq', 'Mohamad Ridwan Saputra', 'Muhammad Azky Amiruzaky', 'Muhammad Iqbal Devandrian',
+            'Muhammad Yazid Al Bustomi', 'Nur Aini Listia', 'Oswasa Renata', 'Rafif Zaki Priyanto', 'Rafka Muhamad Ramadhan',
+            'Rafki Pangestu Robi Gustira', 'Rafli Avan Kurniawan', 'Rumaisha Ghaisani', 'Syifa Aliana Putri', 'Tri Rahma Hayuningtias',
+            'Ufaira Nur Afifa', 'Zahra Dwi Aryanti'
+          ],
+          '9F': [
+            'Abdul Hafizh', 'Aira Desvana Letisya', 'Aji Nurohman', 'Amelia Shabrina Anggraini', 'Arina Cintya Putri',
+            'Asyraf Maulana', 'Atika Dwi Kanaya', 'Azmi Dzaka', 'Azrian Kaesyafa Alfaro', 'Bryan Alfandi',
+            'Delin Khofif Fitriyani', 'Faith Janitra Arsyad', 'Fatir Tri Sulistiyo', 'Felisa Wulandari', 'Felisha Naftalika Putri',
+            'Fikri Arrosyid', 'Gishella Diandra Rizkyanti', 'Hafiz Prasetyo', 'Hafiz Taruna Wijaya', 'Hana Qothrun Nada',
+            'Hilfigar Dwi Romadhoni', 'Hitta Greenfantri Niagara', 'Intan Nursepty', 'Juliete Angelina Murphy', 'Maykel Ridho Pratama',
+            'Mika Susilowati', 'Muhamad Rizky Al Hafiz', 'Muhammad Arif Maulana Zikrullah', 'Muhammad Khafid Maulana', 'Nadia Arfiqoh Az-Zahra',
+            'Rizky Aqila Azmy Yansah', 'Rofiq Hidayat', 'Saiful Iqrom', 'Salsa Lathifah Mubarokah', 'Vilda Julianti',
+            'Wildan Syafi', 'Zalfa Alya Nabilla'
+          ],
+          '9G': [
+            'Ahmad Rizky Waluyo', 'Ahnaf Fadhli Ruliansyah', 'Almira Zaza Aulia', 'Anjali Helga Kayana', 'Aqila Putri Amora',
+            'Arfi Ariyanto', 'Arif Ferdiansah', 'Asyamsani Nibras', 'Asysyifa Aulia Kurnia Mega', 'Aynal Abdan Pratama',
+            'Balqis Imanda Lovely', 'Berlian Vanda Ladyska', 'Bhanu Mu\'ammar', 'Cahyani Putri Fatimah', 'Cinta Calista',
+            'Denita Alinzkia Putri', 'Fadil Bayu Dwi Nugroho', 'Fahri Khoirul Muzaki', 'Fajri Khoerul Amri', 'Fitri Anggraini',
+            'Hadaya Lutvia Amalia', 'Haikal Satria Syahputra', 'Ikhsan Afandi', 'Iqbal Nouval Zacky', 'Isnaeni Wahyu Nurjanati',
+            'Jeni Gustina', 'Lita Egi Triana', 'Muhamad Faizul Akbar', 'Muhamad Hamid Kholilurrakhman', 'Muhamad Wahyu Zulfikar',
+            'Nadia Dinar Salsabila', 'Nasywa Ramadan', 'Nayla Claresta Putri', 'Prasya Allif Firmansyah', 'Rafael Arya Dwi Saputra',
+            'Salsa Aprilia Suryani', 'Vello Feronika Meysha Lovian'
+          ],
+          '9H': [
+            'Akmalu Rifky', 'Aldian Putra Ramadhan', 'Alona Syafa Nafisa', 'Alqi Pratama', 'Anugrah Bima Nugroho',
+            'Asna Fauziyah Ulayya', 'Azka Ardiana Putra', 'Defan Ariyanto', 'Dhina Mitra', 'Diah Puspitarini',
+            'Dziky Fajar Nurfaizi', 'Evita Putri Anggraeni', 'Fatfah Safingatun Aulia', 'Galih Marcelino Ramadhan', 'Hafeza Dwi Faik Kabisa',
+            'Indah Salsabila', 'Janah Idha Pratiwi', 'Jauzaa Hadi Nurrudin', 'Jova Hakiki', 'Meyzha Miryanti',
+            'Muhamad Ajib Fathurrohman', 'Nada Nazhifah Sugianto', 'Naila Aprilia Safitri', 'Nauval Arif Pratama', 'Panji Laksono',
+            'Rafa Alkhafizi', 'Rafa Dilis Asyakrulloh', 'Rafli Andreano', 'Raka Dilis Asyakrulloh', 'Resmi Fajriani',
+            'Ricky Indra Aditya', 'Riska Ayu Setyawati', 'Rizki Ainurrohman', 'Trias Nur Febriansah', 'Velisa', 'Zakiya Zain'
+          ],
+          '9I': [
+            'Afif \\Ali Musyafa', 'Afita Nur Salehah', 'Afka Dwi Ariswa', 'Agistia Laila Nur Ramadhani', 'Alika Nova Zain',
+            'Ami Yunira', 'Anisa Dwi Andriyani', 'Callysta Nareswari Wijaya', 'Denova Azzahra', 'Devin Ibra Aprilio',
+            'Dinda Anasya Putri', 'Drajat Restu Febrian', 'Faidzah Agniya Ramadhani', 'Fariz Alfaro', 'Fayi Bahtiar Rizqulah',
+            'Furqon Hafiyyan', 'Gilang Maulana Ramadhan', 'Gusti Zanati', 'Hafidz Prasetyo', 'Hilmi Nur Romadon', 'Inggit Adiyansyah',
+            'Irsyad Al Ghiffari', 'Jauza Ibnu Vairus Ikhtiar', 'Kaka Putra Wijaya', 'Luthfi Ayunindya', 'Miftahul Hanif',
+            'Muhammad Erlangga Yanuar Prasetyo', 'Muhammad Wildan Alfajri', 'Namira Lisa Rodiyah', 'Nendri Anisa Wulandari', 'Niva Relsa Febrian',
+            'Oktavyan Pratama', 'Rafandra Lionel Asshafi', 'Raka Ardhiansyah', 'Rifda Haniyyah Zalfa', 'Selfiana Safitri',
+            'Yusuf Tri Mulyono'
+          ],
+          '9J': [
+            'Ade Aziz Al Munawar', 'Akhmad Ghaffaar', 'Alifah Khorunisa', 'Arfan Akmal Faturahman', 'Berlian Pramesti',
+            'Dila Aureliani Wijaya', 'Dion Saputra', 'Erick Tirta Ananda', 'Eza Anjar Priyanto', 'Ezha Deo Arifin',
+            'Fadli Maulana', 'Fajri Al Qari Firdaus', 'Gendhis Novelya Pratiwi', 'Hani Najwa Mufidah', 'Hardana Wahyu Supandi',
+            'Iksan Permana', 'Ishfi Uswatun Khasanah', 'Kalimaya Anggraeni', 'Keysa Oktaviana', 'Khusfatun Nafziah',
+            'Kukuh Dana Santoso', 'Muhammad Aldian Zanuari Putra', 'Muhammad Zainal Fathoni', 'Noufal Septha Ardiansyah', 'Novezya Lindi Hasyifa',
+            'Novita Nur Hanifah', 'Ogi Setiawan', 'Putra Juan Erlangga', 'Ranum Syawalina Sari', 'Safa Velisia Nur Aeni',
+            'Satria Octa Vian', 'Siti Masitoh', 'Sri Suhartini', 'Wening Oktaviana', 'Yerin Marselina', 'Yuspita Yuliana'
+          ],
+          '9K': [
+            'Adellia Nasya Ramadani', 'Aisya Maulida', 'Aliffya Krisna Rachmadiani', 'Alifiani Rahmawati', 'Alya Fadillah Rahma',
+            'Anggraeni', 'Anindya Syifaul Laely', 'Anzil Febrian Nurrohman', 'Aprilia Anggraeni', 'Arsakha Faqih Nurrohman',
+            'Aura Saqira Firnanda', 'Ayu Rahmawati', 'Berlian Nur Cahya', 'Dea Triyanna Wardani', 'Dessy Ayu Wulandari',
+            'Farrel Fahreza Fauzi', 'Fransisca Aliza Putri Naedi', 'Hasna Nafeesa Zarifa', 'Iffah Lea Ramadhani', 'Kenzy Tang Lu',
+            'Lia Asifa', 'Linda Anggita Putri', 'Nazwa Tri Fanesa', 'Novastra Zalfa Arinhi', 'Novita Nurkhasanah',
+            'Panggih Margining Rizkia', 'Prahyang Dewi Mukti', 'Rani Hikmahwati', 'Rendy Sugiarto', 'Ridho Satriawan',
+            'Rina Estiningtyas', 'Risky Febritianto', 'Syafa Aulia Adinda Putri', 'Syifa Nurfadhilah', 'Wasis Puji Prasetyo',
+            'Yesi Vernandha', 'Zitatun Khoeru Nada'
+          ]
+        };
+
+        const MONTHS = ['Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+        const REKAP_MONTHS = ['Agustus', 'September', 'Oktober', 'November', 'Desember'];
+
+        const FALLBACK_LOGO_BASE64 = "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDAgMTAwIj48cGF0aCBkPSJNNTAgNSBMOTUgMzAgTDg1IDkwIEw1MCAxMDAgTDE1IDkwIEw1IDMwIFoiIGZpbGw9IiM0YWRlODAiIHN0cm9rZT0iIzE2NjUzNCIgc3Ryb2tlLXdpZHRoPSIyIi8+PGNpcmNsZSBjeD0iNTAiIGN5PSI1MCIgcj0iMzAiIGZpbGw9IiNmZWYwOGEiIHN0cm9rZT0iI2NhOGEwNCIgc3Ryb2tlLXdpZHRoPSIyIi8+PHRleHQgeD0iNTAiIHk9IjU1IiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iMTYiIGZvbnQtd2VpZ2h0PSJib2xkIiBmaWxsPSIjMTY2NTM0IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5NVHM8L3RleHQ+PC9zdmc+";
+
+        const SCHEDULE_DATA = [
+          {
+            day: 'Senin',
+            rows: [
+              { jam: 'Upc', waktu: '07.00 - 07.40', kelas: '', mapel: '' },
+              { jam: '1', waktu: '07.40 - 08.20', kelas: 'IX E', mapel: 'Akhidah Akhlak' },
+              { jam: '2', waktu: '08.20 - 09.00', kelas: 'IX E', mapel: 'Akhidah Akhlak' },
+              { jam: '3', waktu: '09.00 - 09.40', kelas: 'IX D', mapel: 'Akhidah Akhlak' },
+              { jam: 'Break', waktu: '09.40 - 09.55', kelas: '', mapel: '' },
+              { jam: '4', waktu: '09.55 - 10.35', kelas: 'IX D', mapel: 'Akhidah Akhlak' },
+              { jam: '5', waktu: '10.35 - 11.15', kelas: 'IX I', mapel: 'Akhidah Akhlak' },
+              { jam: 'MBG', waktu: '11.15 - 11.35', kelas: '', mapel: '' },
+              { jam: 'Break', waktu: '11.35 - 11.50', kelas: '', mapel: '' },
+              { jam: 'Dhuhur', waktu: '11.50 - 12.10', kelas: '', mapel: '' },
+              { jam: '6', waktu: '12.10 - 12.50', kelas: 'IX I', mapel: 'Akhidah Akhlak' },
+              { jam: '7', waktu: '12.50 - 13.30', kelas: 'IX K', mapel: 'Akhidah Akhlak' }
+            ]
+          },
+          {
+            day: 'Selasa',
+            rows: [
+              { jam: 'Pembiasaan', waktu: '07.00 - 07.30', kelas: '', mapel: '' },
+              { jam: '1', waktu: '07.30 - 08.05', kelas: 'VIII D', mapel: 'Akhidah Akhlak' },
+              { jam: '2', waktu: '08.05 - 08.40', kelas: 'VIII D', mapel: 'Akhidah Akhlak' },
+              { jam: '3', waktu: '08.40 - 09.15', kelas: '', mapel: '' },
+              { jam: 'Break', waktu: '09.15 - 09.30', kelas: '', mapel: '' },
+              { jam: '4', waktu: '09.30 - 10.05', kelas: '', mapel: '' },
+              { jam: '5', waktu: '10.05 - 10.40', kelas: '', mapel: '' },
+              { jam: '5', waktu: '10.40 - 11.15', kelas: 'IX J', mapel: 'Akhidah Akhlak' },
+              { jam: 'MBG', waktu: '11.15 - 11.40', kelas: '', mapel: '' },
+              { jam: 'Break', waktu: '11.40 - 11.55', kelas: '', mapel: '' },
+              { jam: 'Dhuhur', waktu: '11.55 - 12.15', kelas: '', mapel: '' },
+              { jam: '7', waktu: '12.15 - 12.50', kelas: 'IX F', mapel: 'Akhidah Akhlak' },
+              { jam: '8', waktu: '12.50 - 13.30', kelas: 'IX F', mapel: 'Akhidah Akhlak' }
+            ]
+          },
+          {
+            day: 'Rabu',
+            rows: [
+              { jam: 'Pembiasaan', waktu: '07.00 - 07.30', kelas: '', mapel: '' },
+              { jam: '1', waktu: '07.30 - 08.05', kelas: 'IX G', mapel: 'Akhidah Akhlak' },
+              { jam: '2', waktu: '08.05 - 08.40', kelas: 'IX K', mapel: 'Akhidah Akhlak' },
+              { jam: '3', waktu: '08.40 - 09.15', kelas: 'IX C', mapel: 'Akhidah Akhlak' },
+              { jam: 'Break', waktu: '09.15 - 09.30', kelas: '', mapel: '' },
+              { jam: '4', waktu: '09.30 - 10.05', kelas: 'IX B', mapel: 'Akhidah Akhlak' },
+              { jam: '4', waktu: '10.05 - 10.40', kelas: 'IX B', mapel: 'Akhidah Akhlak' },
+              { jam: '5', waktu: '10.40 - 11.15', kelas: 'VIII F', mapel: 'Akhidah Akhlak' },
+              { jam: 'MBG', waktu: '11.15 - 11.40', kelas: '', mapel: '' },
+              { jam: 'Break', waktu: '11.40 - 11.55', kelas: '', mapel: '' },
+              { jam: 'Dhuhur', waktu: '11.55 - 12.15', kelas: '', mapel: '' },
+              { jam: '7', waktu: '12.15 - 12.50', kelas: 'IX J', mapel: 'Akhidah Akhlak' },
+              { jam: '8', waktu: '12.50 - 13.30', kelas: 'VIII C', mapel: 'Akhidah Akhlak' }
+            ]
+          },
+          {
+            day: 'Kamis',
+            rows: [
+              { jam: 'Pembiasaan', waktu: '07.00 - 07.40', kelas: '', mapel: '' },
+              { jam: '1', waktu: '07.40 - 08.20', kelas: 'VIII A', mapel: 'Akhidah Akhlak' },
+              { jam: '2', waktu: '08.20 - 09.00', class: 'IX H', mapel: 'Akhidah Akhlak' },
+              { jam: '3', waktu: '09.00 - 09.40', class: 'IX H', mapel: 'Akhidah Akhlak' },
+              { jam: 'Break', waktu: '09.40 - 09.55', kelas: '', mapel: '' },
+              { jam: '4', waktu: '09.55 - 10.35', kelas: 'IX A', mapel: 'Akhidah Akhlak' },
+              { jam: '5', waktu: '10.35 - 11.15', kelas: 'VIII B', mapel: 'Akhidah Akhlak' },
+              { jam: 'MBG', waktu: '11.15 - 11.35', kelas: '', mapel: '' },
+              { jam: 'Break', waktu: '11.35 - 11.50', kelas: '', mapel: '' },
+              { jam: 'Dhuhur', waktu: '11.50 - 12.10', kelas: '', mapel: '' },
+              { jam: '6', waktu: '12.10 - 12.50', kelas: 'VIII B', mapel: 'Akhidah Akhlak' },
+              { jam: '7', waktu: '12.50 - 13.30', kelas: '', mapel: '' }
+            ]
+          },
+          {
+            day: 'Jumat',
+            rows: [
+              { jam: 'Pembiasaan', waktu: '07.00 - 07.40', kelas: '', mapel: '' },
+              { jam: '1', waktu: '07.40 - 08.20', kelas: 'VIII A', mapel: 'Akhidah Akhlak' },
+              { jam: '2', waktu: '08.20 - 09.00', kelas: 'VIII F', mapel: 'Akhidah Akhlak' },
+              { jam: '3', waktu: '09.00 - 09.40', kelas: 'IX G', mapel: 'Akhidah Akhlak' },
+              { jam: 'MBG', waktu: '09.40 - 10.10', kelas: '', mapel: '' },
+              { jam: 'Break', waktu: '10.10 - 10.25', kelas: '', mapel: '' },
+              { jam: '4', waktu: '10.25 - 11.05', kelas: 'VIII C', mapel: 'Akhidah Akhlak' }
+            ]
+          },
+          {
+            day: 'Sabtu',
+            rows: [
+              { jam: 'Pembiasaan', waktu: '07.00 - 07.30', kelas: '', mapel: '' },
+              { jam: 'Literasi', waktu: '07.30 - 08.00', kelas: '', mapel: '' },
+              { jam: '1', waktu: '08.00 - 08.35', kelas: 'VIII E', mapel: 'Akhidah Akhlak' },
+              { jam: '2', waktu: '08.35 - 09.10', kelas: 'VIII E', mapel: 'Akhidah Akhlak' },
+              { jam: '3', waktu: '09.10 - 09.45', kelas: 'IX A', mapel: 'Akhidah Akhlak' },
+              { jam: 'Break', waktu: '09.45 - 10.00', kelas: '', mapel: '' },
+              { jam: '4', waktu: '10.00 - 10.35', kelas: '', mapel: '' },
+              { jam: '5', waktu: '10.35 - 11.10', kelas: 'IX C', mapel: 'Akhidah Akhlak' }
+            ]
+          }
+        ];
+
+        function App() {
+          const [isAuthenticated, setIsAuthenticated] = useState(() => {
+              return sessionStorage.getItem('simadu_auth') === 'true';
+          });
+          const [loginPassword, setLoginPassword] = useState('');
+          const [loginError, setLoginError] = useState('');
+
+          const [activeTab, setActiveTab] = useState('absensi'); 
+          const [activeReportTab, setActiveReportTab] = useState('absensi'); 
+          const [activeClass, setActiveClass] = useState('7A');
+          const [activeMonth, setActiveMonth] = useState('Juli');
+          
+          const [searchQuery, setSearchQuery] = useState('');
+          const [searchResults, setSearchResults] = useState([]);
+
+          const [studentsData, setStudentsData] = useState(() => {
+            try { return JSON.parse(localStorage.getItem('jurnal_students')) || INITIAL_STUDENTS; } catch (e) { return INITIAL_STUDENTS; }
+          });
+
+          const [attendance, setAttendance] = useState(() => {
+            try { return JSON.parse(localStorage.getItem('jurnal_attendance')) || {}; } catch (e) { return {}; }
+          });
+          
+          const [attendanceJurnal, setAttendanceJurnal] = useState(() => {
+            try { return JSON.parse(localStorage.getItem('jurnal_attendance_mengajar')) || {}; } catch (e) { return {}; }
+          });
+
+          const [classNotes, setClassNotes] = useState(() => {
+            try { return JSON.parse(localStorage.getItem('jurnal_classNotes')) || {}; } catch (e) { return {}; }
+          });
+
+          const [savingsData, setSavingsData] = useState(() => {
+            try { return JSON.parse(localStorage.getItem('jurnal_savingsData')) || {}; } catch (e) { return {}; }
+          });
+          
+          const [gradesData, setGradesData] = useState(() => {
+            try { return JSON.parse(localStorage.getItem('jurnal_gradesData')) || {}; } catch (e) { return {}; }
+          });
+          
+          const [syncStatus, setSyncStatus] = useState('');
+          const [isSyncing, setIsSyncing] = useState(false);
+
+          const scriptUrl = "https://script.google.com/macros/s/AKfycbxKrPzQ8o0XD6vlg1t0AIt8_-Y4fUAOgA-pwTdtPwqcpp2uDRo9IgPHFfJ_Sl0bsByg1Q/exec";
+          const targetSpreadsheetId = "1jz6Vh1d2IFkSh_HZi6RhvNaervTWqx98Y_b7Pwfafcg";
+
+          const [dialog, setDialog] = useState(null); 
+
+          useEffect(() => {
+              const handleContextMenu = (e) => e.preventDefault(); 
+              
+              const handleKeyDown = (e) => {
+                  if (e.key === 'F12') { e.preventDefault(); }
+                  if (e.ctrlKey && e.shiftKey && ['I', 'J', 'C', 'i', 'j', 'c'].includes(e.key)) { e.preventDefault(); }
+                  if (e.ctrlKey && ['U', 'S', 'P', 'C', 'u', 's', 'p', 'c'].includes(e.key)) { e.preventDefault(); }
+              };
+
+              document.addEventListener('contextmenu', handleContextMenu);
+              document.addEventListener('keydown', handleKeyDown);
+
+              return () => {
+                  document.removeEventListener('contextmenu', handleContextMenu);
+                  document.removeEventListener('keydown', handleKeyDown);
+              };
+          }, []);
+
+          useEffect(() => { localStorage.setItem('jurnal_students', JSON.stringify(studentsData)); }, [studentsData]);
+          useEffect(() => { localStorage.setItem('jurnal_attendance', JSON.stringify(attendance)); }, [attendance]);
+          useEffect(() => { localStorage.setItem('jurnal_attendance_mengajar', JSON.stringify(attendanceJurnal)); }, [attendanceJurnal]);
+          useEffect(() => { localStorage.setItem('jurnal_classNotes', JSON.stringify(classNotes)); }, [classNotes]);
+          useEffect(() => { localStorage.setItem('jurnal_savingsData', JSON.stringify(savingsData)); }, [savingsData]);
+          useEffect(() => { localStorage.setItem('jurnal_gradesData', JSON.stringify(gradesData)); }, [gradesData]);
+
+          const getDaysInMonth = (month) => {
+            if (month === 'Juli') { return Array.from({ length: 19 }, (_, i) => i + 13); }
+            return Array.from({ length: 31 }, (_, i) => i + 1);
+          };
+
+          const daysInMonth = getDaysInMonth(activeMonth);
+          const [actionDay, setActionDay] = useState(activeMonth === 'Juli' ? 13 : 1);
+
+          const today = new Date();
+          const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+          const currentDateStr = today.toLocaleDateString('id-ID', options);
+
+          const currentStudents = studentsData[activeClass] || [];
+
+          useEffect(() => {
+              if (!searchQuery.trim()) {
+                  setSearchResults([]);
+                  return;
+              }
+              const query = searchQuery.toLowerCase();
+              const results = [];
+              Object.entries(studentsData).forEach(([className, students]) => {
+                  students.forEach(student => {
+                      if (student.toLowerCase().includes(query)) {
+                          results.push({ name: student, className });
+                      }
+                  });
+              });
+              setSearchResults(results.slice(0, 15)); 
+          }, [searchQuery, studentsData]);
+
+          const sanitizeId = (name) => name.replace(/[^a-zA-Z0-9]/g, '-');
+
+          const handleSelectSearchResult = (studentName, className) => {
+              setActiveClass(className);
+              setSearchQuery('');
+              setSearchResults([]);
+              
+              setTimeout(() => {
+                  const safeId = sanitizeId(studentName);
+                  let rowId = '';
+                  if(activeTab === 'tabungan') rowId = `tab-row-${safeId}`;
+                  else if(activeTab === 'nilai') rowId = `nilai-row-${safeId}`;
+                  else if(activeTab === 'absensi') rowId = `absensi-row-${safeId}`;
+                  else rowId = `row-${safeId}`;
+
+                  const el = document.getElementById(rowId);
+                  
+                  if (el) {
+                      el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                      el.classList.add('highlight-row');
+                      setTimeout(() => {
+                          el.classList.remove('highlight-row');
+                      }, 2500);
+                  }
+              }, 150);
+          };
+
+          const showAlert = (message) => {
+              setDialog({ type: 'alert', message, onConfirm: () => setDialog(null) });
+          };
+
+          const executeWithAdmin = (actionCallback) => {
+              setDialog({
+                  type: 'prompt',
+                  message: 'Masukkan password Admin untuk melanjutkan:',
+                  onConfirm: (val) => {
+                      if (val === 'F134nto') {
+                          setDialog(null);
+                          actionCallback();
+                      } else {
+                          showAlert("Password salah! Akses ditolak.");
+                      }
+                  },
+                  onCancel: () => setDialog(null)
+              });
+          };
+
+          const handleTambahSiswa = () => {
+              executeWithAdmin(() => {
+                  setDialog({
+                      type: 'prompt',
+                      message: `Masukkan nama lengkap siswa baru untuk kelas ${activeClass}:`,
+                      placeholder: 'Nama Lengkap',
+                      onConfirm: (nama) => {
+                          if (nama && nama.trim() !== '') {
+                              setStudentsData(prev => {
+                                  const classStudents = [...(prev[activeClass] || [])];
+                                  classStudents.push(nama.trim());
+                                  classStudents.sort(); 
+                                  return { ...prev, [activeClass]: classStudents };
+                              });
+                              showAlert(`Siswa bernama "${nama.trim()}" berhasil ditambahkan ke kelas ${activeClass}.`);
+                          } else {
+                              setDialog(null);
+                          }
+                      },
+                      onCancel: () => setDialog(null)
+                  });
+              });
+          };
+
+          const handleHapusSiswa = () => {
+              executeWithAdmin(() => {
+                  const listSiswa = studentsData[activeClass] || [];
+                  const previewList = listSiswa.slice(0, 10).join(', ') + (listSiswa.length > 10 ? '...' : '');
+                  
+                  setDialog({
+                      type: 'prompt',
+                      message: `Daftar siswa: \n${previewList}\n\nKetik NAMA LENGKAP siswa yang ingin dihapus dari kelas ${activeClass}:`,
+                      placeholder: 'Nama Lengkap Siswa',
+                      onConfirm: (nama) => {
+                          if (nama && nama.trim() !== '') {
+                              const target = nama.trim();
+                              if (listSiswa.includes(target)) {
+                                  setDialog({
+                                      type: 'confirm',
+                                      message: `Apakah Anda yakin ingin menghapus "${target}" dari kelas ${activeClass}?`,
+                                      onConfirm: () => {
+                                          setStudentsData(prev => {
+                                              const classStudents = prev[activeClass].filter(s => s !== target);
+                                              return { ...prev, [activeClass]: classStudents };
+                                          });
+                                          showAlert(`Siswa "${target}" berhasil dihapus.`);
+                                      },
+                                      onCancel: () => setDialog(null)
+                                  });
+                              } else {
+                                  showAlert(`Siswa dengan nama "${target}" tidak ditemukan di kelas ${activeClass}. Harap perhatikan huruf besar dan kecil.`);
+                              }
+                          } else {
+                              setDialog(null);
+                          }
+                      },
+                      onCancel: () => setDialog(null)
+                  });
+              });
+          };
+
+          const toggleAttendance = (student, day, isJurnal = false) => {
+            const key = `${activeClass}-${activeMonth}-${student}-${day}`;
+            const currentState = isJurnal ? attendanceJurnal : attendance;
+            const current = currentState[key];
+            let nextStatus = '';
+            if (!current) nextStatus = 'H';
+            else if (current === 'H') nextStatus = 'I';
+            else if (current === 'I') nextStatus = 'S';
+            else if (current === 'S') nextStatus = 'A';
+            else nextStatus = '';
+
+            if (isJurnal) {
+                setAttendanceJurnal(prev => ({ ...prev, [key]: nextStatus }));
+            } else {
+                setAttendance(prev => ({ ...prev, [key]: nextStatus }));
+            }
+          };
+
+          const getRekap = (student, month = activeMonth, isJurnal = false) => {
+            let rekap = { H: 0, I: 0, S: 0, A: 0 };
+            const days = getDaysInMonth(month);
+            const currentState = isJurnal ? attendanceJurnal : attendance;
+            days.forEach(day => {
+              const status = currentState[`${activeClass}-${month}-${student}-${day}`];
+              if (status && rekap[status] !== undefined) {
+                rekap[status]++;
+              }
+            });
+            return rekap;
+          };
+
+          const getTotalRekapDashboard = (student, isJurnal = false) => {
+              let total = { H: 0, I: 0, S: 0, A: 0 };
+              REKAP_MONTHS.forEach(m => {
+                  const mRekap = getRekap(student, m, isJurnal);
+                  total.H += mRekap.H;
+                  total.I += mRekap.I;
+                  total.S += mRekap.S;
+                  total.A += mRekap.A;
+              });
+              return total;
+          };
+
+          const getStudentTotalSavings = (student, month = activeMonth) => {
+            let total = 0;
+            const days = getDaysInMonth(month);
+            days.forEach(d => {
+              const key = `${activeClass}-${month}-${student}-${d}`;
+              const val = parseFloat(savingsData[key]) || 0;
+              total += val;
+            });
+            return total;
+          };
+
+          const getDailyTotalSavings = (day) => {
+            let total = 0;
+            currentStudents.forEach(student => {
+              const key = `${activeClass}-${activeMonth}-${student}-${day}`;
+              const val = parseFloat(savingsData[key]) || 0;
+              total += val;
+            });
+            return total;
+          };
+          
+          const handleHadirSemua = () => {
+            const isJurnal = activeTab === 'jurnal';
+            if (isJurnal) {
+                setAttendanceJurnal(prev => {
+                  const newAttendance = { ...prev };
+                  currentStudents.forEach(student => {
+                    const key = `${activeClass}-${activeMonth}-${student}-${actionDay}`;
+                    newAttendance[key] = 'H';
+                  });
+                  return newAttendance;
+                });
+            } else {
+                setAttendance(prev => {
+                  const newAttendance = { ...prev };
+                  currentStudents.forEach(student => {
+                    const key = `${activeClass}-${activeMonth}-${student}-${actionDay}`;
+                    newAttendance[key] = 'H';
+                  });
+                  return newAttendance;
+                });
+            }
+          };
+
+          const handleReset = () => {
+            executeWithAdmin(() => {
+                const isJurnal = activeTab === 'jurnal';
+                if (isJurnal) {
+                    setAttendanceJurnal(prev => {
+                      const newAttendance = { ...prev };
+                      currentStudents.forEach(student => {
+                        const key = `${activeClass}-${activeMonth}-${student}-${actionDay}`;
+                        delete newAttendance[key];
+                      });
+                      return newAttendance;
+                    });
+                } else {
+                    setAttendance(prev => {
+                      const newAttendance = { ...prev };
+                      currentStudents.forEach(student => {
+                        const key = `${activeClass}-${activeMonth}-${student}-${actionDay}`;
+                        delete newAttendance[key];
+                      });
+                      return newAttendance;
+                    });
+                }
+                showAlert(`Data absensi tanggal ${actionDay} berhasil di-reset.`);
+            });
+          };
+
+          const handleNoteChange = (field, value) => {
+            const key = `${activeClass}-${activeMonth}-${actionDay}-${field}`;
+            setClassNotes(prev => ({ ...prev, [key]: value }));
+          };
+          
+          const handleSavingChange = (student, value) => {
+            const key = `${activeClass}-${activeMonth}-${student}-${actionDay}`;
+            setSavingsData(prev => ({ ...prev, [key]: value }));
+          };
+          
+          const handleGradeChange = (student, field, value) => {
+              const key = `${activeClass}-${student}`;
+              setGradesData(prev => {
+                  const studentGrades = { ...(prev[key] || {}) };
+                  studentGrades[field] = value;
+                  return { ...prev, [key]: studentGrades };
+              });
+          };
+
+          const calculateGrades = (student) => {
+              const key = `${activeClass}-${student}`;
+              const data = gradesData[key] || {};
+              
+              const parseG = (v) => (v !== undefined && v !== '' ? parseFloat(v) : null);
+              
+              const s1 = parseG(data.s1);
+              const s2 = parseG(data.s2);
+              const s3 = parseG(data.s3);
+              const s4 = parseG(data.s4);
+              const s5 = parseG(data.s5);
+              const asts = parseG(data.asts);
+              
+              const components = [s1, s2, s3, s4, s5, asts];
+              const validComponents = components.filter(c => c !== null);
+              
+              const jml = validComponents.reduce((a, b) => a + b, 0);
+              const rata2 = validComponents.length > 0 ? (jml / validComponents.length) : 0;
+              const p80 = rata2 * 0.8;
+              
+              const asas = parseG(data.asas) || 0;
+              const p20 = parseG(data.asas) !== null ? asas * 0.2 : 0;
+              
+              const na = p80 + p20;
+              
+              return { jml, rata2, p80, p20, na, asas: parseG(data.asas) };
+          };
+
+          const handleSyncToSpreadsheet = async () => {
+            if (isSyncing) return;
+            setIsSyncing(true);
+            setSyncStatus(activeTab === 'jurnal' ? 'Sabar Kirim Data Jurnal.....' : 'Sabar Kirim Data Absensi.....');
+
+            let headers = ["Nama Siswa"];
+            for (let i = 1; i <= 31; i++) { headers.push(i.toString()); }
+
+            let rows = [];
+            const currentState = activeTab === 'jurnal' ? attendanceJurnal : attendance;
+            
+            currentStudents.forEach((student) => {
+              let row = [student];
+              for (let i = 1; i <= 31; i++) {
+                if (activeMonth === 'Juli') {
+                  if (i >= 13) {
+                    const status = currentState[`${activeClass}-${activeMonth}-${student}-${i}`] || '';
+                    row.push(status);
+                  } else {
+                    row.push('');
+                  }
+                } else {
+                  const status = currentState[`${activeClass}-${activeMonth}-${student}-${i}`] || '';
+                  row.push(status);
+                }
+              }
+              rows.push(row);
+            });
+
+            rows.push(Array(32).fill(""));
+            let materiRow = Array(32).fill("");
+            materiRow[0] = "Materi Pokok/Sub Pokok Bahasan";
+            for (let i = 1; i <= 31; i++) {
+              materiRow[i] = classNotes[`${activeClass}-${activeMonth}-${i}-materi`] || "";
+            }
+            rows.push(materiRow);
+
+            try {
+              const payload = {
+                spreadsheetId: targetSpreadsheetId, 
+                sheetName: activeTab === 'jurnal' ? `Jurnal_${activeClass}_${activeMonth}` : `Absensi_${activeClass}_${activeMonth}`,
+                headers: headers,
+                rows: rows,
+                updateMode: "update_content_only" 
+              };
+
+              await fetch(scriptUrl, {
+                method: 'POST',
+                mode: 'no-cors',
+                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                body: JSON.stringify(payload)
+              });
+
+              setSyncStatus(`Berhasil Kirim ${activeTab === 'jurnal' ? 'Jurnal' : 'Absensi'}, FITRIANTO PUJI PANGARSO, S.Kom.`);
+              setTimeout(() => setSyncStatus(''), 5000);
+            } catch (err) {
+              setSyncStatus('Gagal sinkronisasi: ' + err.message);
+            } finally {
+              setIsSyncing(false);
+            }
+          };
+
+          const handleSyncSavings = async () => {
+            if (isSyncing) return;
+            setIsSyncing(true);
+            setSyncStatus('Sabar Kirim Data Tabungan......');
+
+            let headers = ["Nama Siswa"];
+            for (let i = 1; i <= 31; i++) { headers.push(i.toString()); }
+            headers.push("Total Bulanan");
+
+            let rows = [];
+            currentStudents.forEach((student) => {
+              let row = [student];
+              let totalStudent = 0;
+              for (let i = 1; i <= 31; i++) {
+                const key = `${activeClass}-${activeMonth}-${student}-${i}`;
+                const amount = savingsData[key] || "";
+                row.push(amount);
+                if (amount) totalStudent += parseFloat(amount);
+              }
+              row.push(totalStudent);
+              rows.push(row);
+            });
+
+            let dailyTotalRow = ["TOTAL HARIAN"];
+            for (let i = 1; i <= 31; i++) {
+              let dayTotal = 0;
+              currentStudents.forEach(student => {
+                const key = `${activeClass}-${activeMonth}-${student}-${i}`;
+                const amount = parseFloat(savingsData[key]) || 0;
+                dayTotal += amount;
+              });
+              dailyTotalRow.push(dayTotal || "");
+            }
+
+            let monthGrandTotal = 0;
+            currentStudents.forEach(student => {
+              monthGrandTotal += getStudentTotalSavings(student);
+            });
+            dailyTotalRow.push(monthGrandTotal);
+
+            rows.push(dailyTotalRow);
+
+            try {
+              const payload = {
+                spreadsheetId: targetSpreadsheetId,
+                sheetName: `Tabungan_${activeClass}_${activeMonth}`,
+                headers: headers,
+                rows: rows,
+                updateMode: "update_content_only" 
+              };
+
+              await fetch(scriptUrl, {
+                method: 'POST',
+                mode: 'no-cors',
+                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                body: JSON.stringify(payload)
+              });
+
+              setSyncStatus('Berhasil Kirim Tabungan, FITRIANTO PUJI PANGARSO, S.Kom.');
+              setTimeout(() => setSyncStatus(''), 5000);
+            } catch (err) {
+              setSyncStatus('Gagal kirim tabungan: ' + err.message);
+            } finally {
+              setIsSyncing(false);
+            }
+          };
+
+          const handleSyncGrades = async () => {
+            if (isSyncing) return;
+            setIsSyncing(true);
+            setSyncStatus('Sabar Kirim Data Nilai......');
+
+            let headers = ["No", "Nama Siswa", "S1", "S2", "S3", "S4", "S5", "ASTS", "Jml", "Rata2", "80%", "ASAS", "20%", "Nilai Akhir"];
+            let rows = [];
+
+            currentStudents.forEach((student, idx) => {
+                const key = `${activeClass}-${student}`;
+                const data = gradesData[key] || {};
+                const calc = calculateGrades(student);
+                let row = [
+                    idx + 1,
+                    student,
+                    data.s1||'', data.s2||'', data.s3||'', data.s4||'', data.s5||'',
+                    data.asts||'', calc.jml||'', calc.rata2 ? calc.rata2.toFixed(1) : '',
+                    calc.p80 ? calc.p80.toFixed(1) : '', data.asas||'',
+                    calc.p20 ? calc.p20.toFixed(1) : '', Math.round(calc.na)||''
+                ];
+                rows.push(row);
+            });
+
+            try {
+              const payload = {
+                spreadsheetId: targetSpreadsheetId,
+                sheetName: `Nilai_${activeClass}`,
+                headers: headers,
+                rows: rows,
+                updateMode: "update_content_only"
+              };
+
+              await fetch(scriptUrl, {
+                method: 'POST',
+                mode: 'no-cors',
+                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                body: JSON.stringify(payload)
+              });
+
+              setSyncStatus('Berhasil Kirim Daftar Nilai, FITRIANTO PUJI PANGARSO, S.Kom.');
+              setTimeout(() => setSyncStatus(''), 5000);
+            } catch (err) {
+              setSyncStatus('Gagal kirim Daftar Nilai: ' + err.message);
+            } finally {
+              setIsSyncing(false);
+            }
+          };
+
+          const handleSyncJadwal = async () => {
+            if (isSyncing) return;
+            setIsSyncing(true);
+            setSyncStatus('Sabar Kirim Data Jadwal......');
+
+            let headers = ["Hari", "Jam", "Waktu", "Kelas", "Mapel"];
+            let rows = [];
+
+            SCHEDULE_DATA.forEach(dayData => {
+                dayData.rows.forEach(row => {
+                    rows.push([dayData.day, row.jam, row.waktu, row.kelas, row.mapel]);
+                });
+            });
+
+            try {
+              const payload = {
+                spreadsheetId: targetSpreadsheetId,
+                sheetName: `Jadwal_Pelajaran`,
+                headers: headers,
+                rows: rows,
+                updateMode: "update_content_only"
+              };
+
+              await fetch(scriptUrl, {
+                method: 'POST',
+                mode: 'no-cors',
+                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                body: JSON.stringify(payload)
+              });
+
+              setSyncStatus('Berhasil Kirim Jadwal, FITRIANTO PUJI PANGARSO, S.Kom.');
+              setTimeout(() => setSyncStatus(''), 5000);
+            } catch (err) {
+              setSyncStatus('Gagal kirim Jadwal: ' + err.message);
+            } finally {
+              setIsSyncing(false);
+            }
+          };
+
+          const handleExportCSV = () => {
+            let csvContent = "\uFEFF";
+            const title = activeTab === 'jurnal' ? 'JURNAL MENGAJAR INFORMATIKA' : 'ABSENSI SISWA';
+            csvContent += `${title} - KELAS ${activeClass} (${activeMonth.toUpperCase()})\n\n`;
+
+            let headerRow = ["No", "Nama Siswa"];
+            daysInMonth.forEach(d => headerRow.push(`Tgl ${d}`));
+            headerRow.push("Hadir", "Izin", "Sakit", "Alpha");
+            csvContent += headerRow.join(";") + "\n";
+
+            const isJurnal = activeTab === 'jurnal';
+            const currentState = isJurnal ? attendanceJurnal : attendance;
+
+            currentStudents.forEach((student, idx) => {
+              const rekap = getRekap(student, activeMonth, isJurnal);
+              let row = [idx + 1, `"${student}"`];
+              daysInMonth.forEach(d => {
+                const status = currentState[`${activeClass}-${activeMonth}-${student}-${d}`] || '';
+                row.push(status);
+              });
+              row.push(rekap.H, rekap.I, rekap.S, rekap.A);
+              csvContent += row.join(";") + "\n";
+            });
+
+            csvContent += "\n";
+            let materiRow = ["", '"Materi Pokok/Sub Pokok Bahasan"'];
+            
+            daysInMonth.forEach((d) => {
+              const note = classNotes[`${activeClass}-${activeMonth}-${d}-materi`] || "";
+              materiRow.push(`"${note.replace(/"/g, '""')}"`);
+            });
+            
+            materiRow.push("", "", "", "");
+            csvContent += materiRow.join(";") + "\n";
+
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.setAttribute('href', url);
+            link.setAttribute('download', `${activeTab === 'jurnal' ? 'Jurnal' : 'Absensi'}_Kelas_${activeClass}_${activeMonth}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+          };
+
+          const handleExportRekapAbsensiCSV = () => {
+            let csvContent = "\uFEFFREKAPITULASI ABSENSI SEMESTER GANJIL KELAS " + activeClass + "\n\n";
+            
+            let headers1 = ["No", "Nama Siswa"];
+            REKAP_MONTHS.forEach(m => headers1.push(m, "", "", ""));
+            headers1.push("Total SMT Ganjil", "", "", "");
+            csvContent += headers1.join(";") + "\n";
+            
+            let headers2 = ["", ""];
+            REKAP_MONTHS.forEach(m => headers2.push("H", "I", "S", "A"));
+            headers2.push("H", "I", "S", "A");
+            csvContent += headers2.join(";") + "\n";
+
+            currentStudents.forEach((student, idx) => {
+                let row = [idx + 1, `"${student}"`];
+                const totalRekap = getTotalRekapDashboard(student, false); 
+                REKAP_MONTHS.forEach(m => {
+                    const mRekap = getRekap(student, m, false);
+                    row.push(mRekap.H||'', mRekap.I||'', mRekap.S||'', mRekap.A||'');
+                });
+                row.push(totalRekap.H||'', totalRekap.I||'', totalRekap.S||'', totalRekap.A||'');
+                csvContent += row.join(";") + "\n";
+            });
+
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.setAttribute('href', url);
+            link.setAttribute('download', `Rekap_Absensi_Siswa_Kelas_${activeClass}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+          };
+
+          const handleExportRekapKehadiranTatapMukaCSV = () => {
+            let csvContent = "\uFEFFREKAPITULASI KEHADIRAN TATAP MUKA SEMESTER GANJIL KELAS " + activeClass + "\n\n";
+            
+            let headers1 = ["No", "Nama Siswa"];
+            REKAP_MONTHS.forEach(m => headers1.push(m, "", "", ""));
+            headers1.push("Total SMT Ganjil", "", "", "");
+            csvContent += headers1.join(";") + "\n";
+            
+            let headers2 = ["", ""];
+            REKAP_MONTHS.forEach(m => headers2.push("H", "I", "S", "A"));
+            headers2.push("H", "I", "S", "A");
+            csvContent += headers2.join(";") + "\n";
+
+            currentStudents.forEach((student, idx) => {
+                let row = [idx + 1, `"${student}"`];
+                const totalRekap = getTotalRekapDashboard(student, true); 
+                REKAP_MONTHS.forEach(m => {
+                    const mRekap = getRekap(student, m, true);
+                    row.push(mRekap.H||'', mRekap.I||'', mRekap.S||'', mRekap.A||'');
+                });
+                row.push(totalRekap.H||'', totalRekap.I||'', totalRekap.S||'', totalRekap.A||'');
+                csvContent += row.join(";") + "\n";
+            });
+
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.setAttribute('href', url);
+            link.setAttribute('download', `Rekap_Kehadiran_Tatap_Muka_Kelas_${activeClass}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+          };
+
+          const handleExportRekapTabunganCSV = () => {
+            let csvContent = "\uFEFFREKAPITULASI TABUNGAN SEMESTER GANJIL KELAS " + activeClass + "\n\n";
+            let headers = ["No", "Nama Siswa", ...REKAP_MONTHS, "Total Tabungan"];
+            csvContent += headers.join(";") + "\n";
+            
+            currentStudents.forEach((student, idx) => {
+                let semTotal = 0;
+                let row = [idx + 1, `"${student}"`];
+                REKAP_MONTHS.forEach(m => {
+                    const mTotal = getStudentTotalSavings(student, m);
+                    semTotal += mTotal;
+                    row.push(mTotal || '');
+                });
+                row.push(semTotal || '');
+                csvContent += row.join(";") + "\n";
+            });
+
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.setAttribute('href', url);
+            link.setAttribute('download', `Rekap_Tabungan_Kelas_${activeClass}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+          };
+
+          const handleExportGradesCSV = () => {
+            let csvContent = "\uFEFFDAFTAR NILAI KELAS " + activeClass + " (SEMESTER GANJIL)\n\n";
+            csvContent += "No;Nama Siswa;S1;S2;S3;S4;S5;ASTS;Jml;Rata2;80%;ASAS;20%;Nilai Akhir\n";
+            
+            currentStudents.forEach((student, idx) => {
+                const key = `${activeClass}-${student}`;
+                const data = gradesData[key] || {};
+                const calc = calculateGrades(student);
+                let row = [
+                    idx + 1, 
+                    `"${student}"`, 
+                    data.s1||'', data.s2||'', data.s3||'', data.s4||'', data.s5||'', 
+                    data.asts||'', calc.jml||'', calc.rata2 ? calc.rata2.toFixed(1) : '', 
+                    calc.p80 ? calc.p80.toFixed(1) : '', data.asas||'', 
+                    calc.p20 ? calc.p20.toFixed(1) : '', Math.round(calc.na)||''
+                ];
+                csvContent += row.join(";") + "\n";
+            });
+
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.setAttribute('href', url);
+            link.setAttribute('download', `Daftar_Nilai_Kelas_${activeClass}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+          };
+
+          const getJurnalEntries = () => {
+              let entries = [];
+              REKAP_MONTHS.forEach(month => {
+                  const days = getDaysInMonth(month);
+                  days.forEach(day => {
+                      const note = classNotes[`${activeClass}-${month}-${day}-materi`];
+                      if (note && note.trim() !== '') {
+                          let absentees = [];
+                          let counts = { H: 0, I: 0, S: 0, A: 0 };
+
+                          currentStudents.forEach(student => {
+                              const status = attendanceJurnal[`${activeClass}-${month}-${student}-${day}`];
+                              if (status) {
+                                  counts[status]++;
+                              }
+                              if (status === 'S' || status === 'I' || status === 'A') {
+                                  absentees.push(`${student} (${status})`);
+                              }
+                          });
+                          const absenteesText = absentees.length > 0 ? absentees.join(', ') : '-';
+
+                          entries.push({ month, day, note, absentees: absenteesText, counts });
+                      }
+                  });
+              });
+              return entries;
+          };
+
+          const handleExportRekapJurnalCSV = () => {
+              let csvContent = "\uFEFFREKAPITULASI JURNAL MENGAJAR SEMESTER GANJIL KELAS " + activeClass + "\n\n";
+              csvContent += "No;Bulan;Tanggal;Materi Pokok / Sub Pokok Bahasan;H;I;S;A;Siswa Tidak Hadir Keterangan\n";
+
+              const entries = getJurnalEntries();
+              entries.forEach((entry, idx) => {
+                  const safeNote = `"${entry.note.replace(/"/g, '""')}"`; 
+                  const safeAbsentees = `"${entry.absentees.replace(/"/g, '""')}"`;
+                  csvContent += `${idx + 1};${entry.month};Tgl ${entry.day};${safeNote};${entry.counts.H};${entry.counts.I};${entry.counts.S};${entry.counts.A};${safeAbsentees}\n`;
+              });
+
+              const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+              const url = URL.createObjectURL(blob);
+              const link = document.createElement('a');
+              link.setAttribute('href', url);
+              link.setAttribute('download', `Rekap_Jurnal_Mengajar_Kelas_${activeClass}.csv`);
+              document.body.appendChild(link);
+              link.click();
+              document.body.removeChild(link);
+          };
+
+          const renderDialog = () => {
+              if (!dialog) return null;
+              
+              let inputRef = React.createRef();
+              
+              const handleSubmit = (e) => {
+                  e.preventDefault();
+                  if (dialog.type === 'prompt') {
+                      dialog.onConfirm(inputRef.current.value);
+                  } else {
+                      dialog.onConfirm();
+                  }
+              };
+
+              return (
+                  <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm modal-enter">
+                      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm overflow-hidden modal-content-enter border border-slate-200">
+                          <div className={`p-4 ${dialog.type === 'alert' ? 'bg-amber-50 border-b border-amber-100' : 'bg-slate-50 border-b border-slate-100'}`}>
+                              <h3 className="text-lg font-black text-slate-800 flex items-center gap-2">
+                                  {dialog.type === 'alert' ? '⚠️ Pemberitahuan' : dialog.type === 'confirm' ? '❓ Konfirmasi' : '🔒 Autentikasi / Input'}
+                              </h3>
+                          </div>
+                          <form onSubmit={handleSubmit} className="p-5">
+                              <p className="text-slate-600 font-medium mb-4 whitespace-pre-wrap text-sm">{dialog.message}</p>
+                              
+                              {dialog.type === 'prompt' && (
+                                  <input 
+                                      type={dialog.message.toLowerCase().includes('password') ? 'password' : 'text'}
+                                      ref={inputRef}
+                                      autoFocus
+                                      placeholder={dialog.placeholder || "Ketik di sini..."}
+                                      className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 mb-4"
+                                  />
+                              )}
+                              
+                              <div className="flex justify-end gap-3 mt-2">
+                                  {(dialog.type === 'prompt' || dialog.type === 'confirm') && (
+                                      <button type="button" onClick={dialog.onCancel} className="px-4 py-2 text-sm font-bold text-slate-600 hover:bg-slate-100 rounded-lg transition-colors">
+                                          Batal
+                                      </button>
+                                  )}
+                                  <button type="submit" className={`px-4 py-2 text-sm font-bold text-white rounded-lg transition-colors shadow-sm ${dialog.type === 'alert' ? 'bg-emerald-600 hover:bg-emerald-700' : 'bg-emerald-600 hover:bg-emerald-700'}`}>
+                                      {dialog.type === 'alert' ? 'Tutup' : 'Lanjutkan'}
+                                  </button>
+                              </div>
+                          </form>
+                      </div>
+                  </div>
+              );
+          };
+
+          if (!isAuthenticated) {
+              const handleLoginSubmit = (e) => {
+                  e.preventDefault();
+                  if (loginPassword === 'F134nto') { 
+                      setIsAuthenticated(true);
+                      sessionStorage.setItem('simadu_auth', 'true');
+                      setLoginError('');
+                  } else {
+                      setLoginError('Password salah! Akses ditolak.');
+                  }
+              };
+
+              return (
+                  <div className="min-h-screen flex items-center justify-center bg-slate-900 p-4 relative overflow-hidden" style={{ backgroundImage: 'radial-gradient(circle at center, #064e3b 0%, #020617 100%)' }}>
+                      <div className="absolute inset-0 opacity-10 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')]"></div>
+                      <div className="bg-white/10 backdrop-blur-xl p-6 sm:p-8 rounded-3xl shadow-2xl border border-white/20 w-[95%] sm:w-full max-w-md modal-content-enter relative z-10 mx-auto">
+                          <div className="text-center mb-6 sm:mb-8">
+                              <div className="w-28 h-28 sm:w-32 sm:h-32 md:w-36 md:h-36 mx-auto mb-4 relative flex items-center justify-center">
+                                  <div className="absolute inset-0 bg-emerald-400/30 rounded-full blur-2xl animate-pulse"></div>
+                                  <img 
+                                      src="logo_2.png"
+                                      onError={(e) => { 
+                                          if (e.target.src !== FALLBACK_LOGO_BASE64) {
+                                              e.target.src = FALLBACK_LOGO_BASE64; 
+                                          }
+                                      }}
+                                      alt="Logo MTs" 
+                                      className="w-full h-full max-w-full max-h-full object-contain relative z-10 drop-shadow-xl transition-transform duration-500 hover:scale-105" 
+                                  />
+                              </div>
+                              <h1 className="text-4xl sm:text-5xl font-black text-white tracking-widest uppercase mb-1 drop-shadow-lg">SIMADU</h1>
+                              <p className="text-emerald-200 text-[10px] sm:text-xs font-semibold tracking-wide uppercase mb-4">Sistem Informasi Manajemen Akademik Terpadu</p>
+                              <h2 className="text-lg sm:text-2xl font-black text-amber-300 tracking-wider uppercase mb-4 drop-shadow-md">MTs MA'ARIF NU 1 WANGON</h2>
+                              
+                              <div className="h-px w-16 bg-emerald-500/50 mx-auto my-4"></div>
+                              
+                              <p className="text-emerald-100/70 text-xs mt-2 font-medium tracking-wide">Sistem Terkunci. Masukkan PIN Admin.</p>
+                          </div>
+                          <form onSubmit={handleLoginSubmit} className="space-y-5">
+                              <div>
+                                  <input 
+                                      type="password" 
+                                      placeholder="•••••••" 
+                                      value={loginPassword}
+                                      onChange={(e) => setLoginPassword(e.target.value)}
+                                      className="w-full px-5 py-4 rounded-xl bg-black/30 border border-emerald-500/30 text-white placeholder-white/20 focus:outline-none focus:border-emerald-400 focus:ring-2 focus:ring-emerald-400/50 transition-all text-center tracking-[0.5em] font-black text-lg"
+                                      autoFocus
+                                  />
+                              </div>
+                              {loginError && <p className="text-red-400 text-xs font-bold text-center animate-pulse bg-red-900/30 py-2 rounded-lg border border-red-500/20">{loginError}</p>}
+                              <button type="submit" className="w-full py-4 bg-emerald-600 hover:bg-emerald-500 text-white font-black rounded-xl shadow-lg shadow-emerald-900/50 transition-all active:scale-[0.98] uppercase tracking-widest text-sm flex items-center justify-center gap-2">
+                                  <span>Buka Sistem</span>
+                                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}><path strokeLinecap="round" strokeLinejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6" /></svg>
+                              </button>
+                          </form>
+                          <div className="mt-8 text-center pt-6 border-t border-white/10">
+                              <p className="text-[10px] text-emerald-300/40 uppercase tracking-widest font-black flex items-center justify-center gap-1.5">
+                                  <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M2.166 4.999A11.954 11.954 0 0010 1.944 11.954 11.954 0 0017.834 5c.11.65.166 1.32.166 2.001 0 5.225-3.34 9.67-8 11.317C5.34 16.67 2 12.225 2 7c0-.682.057-1.35.166-2.001zm11.541 3.708a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" /></svg>
+                                  Dilindungi Keamanan Berlapis
+                              </p>
+                          </div>
+                      </div>
+                  </div>
+              );
+          }
+
+          return (
+            <div className="min-h-screen flex flex-col items-center p-2 sm:p-4 md:p-6 w-full max-w-[1440px] mx-auto gap-4 relative">
+              
+              {renderDialog()}
+
+              {/* HEADER (DASHBOR UTAMA) */}
+              <header className="bg-emerald-700 text-white shadow-md w-full rounded-2xl overflow-hidden border-b-4 border-amber-400 relative">
+                <div className="absolute inset-0 bg-black/10"></div>
+                <div className="px-4 sm:px-6 py-4 sm:py-5 flex flex-col md:flex-row items-center md:items-center justify-between gap-4 relative z-10 text-center md:text-left">
+                  
+                  <div className="flex flex-col md:flex-row items-center gap-3 sm:gap-4 md:gap-5 w-full md:w-auto">
+                    <div className="w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24 relative flex-shrink-0 mx-auto md:mx-0">
+                      <div className="absolute inset-0 bg-emerald-300/40 rounded-full blur-xl animate-pulse"></div>
+                      <img 
+                          src="logo_2.png"
+                          onError={(e) => { 
+                              if (e.target.src !== FALLBACK_LOGO_BASE64) {
+                                  e.target.src = FALLBACK_LOGO_BASE64; 
+                              }
+                          }}
+                          alt="Logo MTs" 
+                          className="w-full h-full max-w-full max-h-full object-contain relative z-10 drop-shadow-md transition-transform duration-500 hover:scale-105" 
+                      />
+                    </div>
+                    
+                    <div>
+                      <h1 className="text-xl sm:text-2xl md:text-3xl font-black tracking-tight drop-shadow-md">SIMADU</h1>
+                      <p className="text-emerald-100 text-xs sm:text-sm md:text-base font-bold tracking-wide uppercase mt-0.5 md:mt-1 drop-shadow-sm">Sistem Informasi Manajemen Akademik Terpadu</p>
+                      <h2 className="text-lg sm:text-xl md:text-2xl font-black text-amber-300 tracking-wider uppercase mt-1 md:mt-2 drop-shadow-md">MTs MA'ARIF NU 1 WANGON</h2>
+                    </div>
+                  </div>
+
+                  <div className="flex flex-col items-center md:items-end gap-2.5 mt-2 md:mt-0 w-full md:w-auto">
+                      <div className="bg-emerald-900/40 backdrop-blur-sm px-4 py-2.5 rounded-xl border border-emerald-500/30 flex flex-col items-center md:items-end w-full md:w-auto shadow-inner">
+                          <span className="text-[10px] text-emerald-200 font-bold uppercase tracking-widest mb-1 opacity-80">{today.toLocaleDateString('id-ID', { weekday: 'long' })}</span>
+                          <span className="text-sm sm:text-base font-black tracking-widest text-amber-300 drop-shadow-sm">
+                              {today.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}
+                          </span>
+                      </div>
+                  </div>
+                </div>
+              </header>
+
+              {syncStatus && (
+                <div className="w-full bg-slate-800 text-white px-4 py-3 rounded-xl font-bold text-sm shadow-md flex items-center justify-between animate-pulse">
+                  <span>{syncStatus}</span>
+                  <button type="button" onClick={() => setSyncStatus('')} className="text-slate-400 hover:text-white px-2">✕</button>
+                </div>
+              )}
+
+              {}
+              <div className="w-full bg-[#98DBC6] rounded-2xl shadow-sm border border-emerald-300 overflow-visible flex flex-col">
+                
+                <div className="px-4 py-2.5 border-b border-emerald-400/30 bg-white/30 flex justify-end items-center rounded-t-2xl">
+                    <div className="relative w-full sm:w-64 md:w-80 z-40 group">
+                        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <svg className="h-3.5 w-3.5 text-emerald-600 group-focus-within:text-emerald-800 transition-colors" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                        </div>
+                        <input
+                            type="text"
+                            placeholder="Cari siswa (contoh: Azka)..."
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                            className="w-full pl-9 pr-8 py-1.5 text-xs rounded-full border border-emerald-400/60 bg-white/90 focus:bg-white focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/30 shadow-sm transition-all"
+                        />
+                        {searchQuery && (
+                            <button onClick={() => setSearchQuery('')} className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-red-500 transition-colors">
+                                <svg className="h-3.5 w-3.5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                            </button>
+                        )}
+                        {searchQuery.trim().length > 0 && (
+                            <div className="absolute top-full right-0 mt-1.5 w-full sm:w-80 bg-white border border-slate-200 rounded-xl shadow-xl overflow-hidden custom-scrollbar" style={{ maxHeight: '250px', overflowY: 'auto' }}>
+                                {searchResults.length > 0 ? (
+                                    <div className="flex flex-col">
+                                        {searchResults.map((res, i) => (
+                                            <div
+                                                key={i}
+                                                onClick={() => handleSelectSearchResult(res.name, res.className)}
+                                                className="px-3 py-2 cursor-pointer hover:bg-emerald-50 border-b border-slate-100 last:border-b-0 flex justify-between items-center transition-colors"
+                                            >
+                                                <span className="text-xs font-semibold text-slate-700">{res.name}</span>
+                                                <span className="text-[9px] font-black text-emerald-700 bg-emerald-100/80 border border-emerald-200 px-1.5 py-0.5 rounded-md">KL {res.className}</span>
+                                            </div>
+                                        ))}
+                                    </div>
+                                ) : (
+                                    <div className="px-3 py-3 text-xs text-center text-slate-500 font-medium">Siswa tidak ditemukan.</div>
+                                )}
+                            </div>
+                        )}
+                    </div>
+                </div>
+
+                <div className="p-4 sm:p-5 flex flex-col lg:flex-row gap-6 lg:items-start justify-between relative z-10">
+                  
+                  <div className="flex-1">
+                    <div className="flex justify-between items-center mb-3">
+                        <h3 className="text-xs font-black text-emerald-900 uppercase tracking-wider mb-0">Pilih Kelas <span className="text-emerald-800 ml-1">({activeClass})</span></h3>
+                        <div className="flex gap-2">
+                            <button type="button" onClick={handleTambahSiswa} className="px-2.5 py-1 bg-emerald-700 text-white hover:bg-emerald-800 rounded text-[10px] font-bold shadow-sm transition-colors border border-emerald-800">+ Tambah Siswa</button>
+                            <button type="button" onClick={handleHapusSiswa} className="px-2.5 py-1 bg-red-600 text-white hover:bg-red-700 rounded text-[10px] font-bold shadow-sm transition-colors border border-red-800">- Hapus Siswa</button>
+                        </div>
+                    </div>
+                    
+                    <div className="flex flex-col gap-2.5">
+                      <div className="flex items-center gap-1.5 flex-wrap">
+                        <span className="text-[10px] font-bold text-emerald-800 bg-white/70 px-2 py-1.5 rounded-md border border-emerald-300 min-w-[50px] text-center shadow-xs">KL 7</span>
+                        {['7A', '7B', '7C', '7D', '7E', '7F', '7G', '7H'].map(cls => (
+                          <button key={cls} type="button" onClick={() => setActiveClass(cls)}
+                            className={`px-3 py-1.5 rounded-md text-xs font-bold transition-all border ${activeClass === cls ? 'bg-emerald-700 border-emerald-800 text-white shadow-md scale-105' : 'bg-white/80 border-emerald-200 text-slate-700 hover:border-emerald-500 hover:bg-white'}`}
+                          >{cls}</button>
+                        ))}
+                      </div>
+                      
+                      <div className="flex items-center gap-1.5 flex-wrap">
+                        <span className="text-[10px] font-bold text-blue-900 bg-white/70 px-2 py-1.5 rounded-md border border-blue-200 min-w-[50px] text-center shadow-xs">KL 8</span>
+                        {['8A', '8B', '8C', '8D', '8E', '8F', '8G', '8H', '8I', '8J'].map(cls => (
+                          <button key={cls} type="button" onClick={() => setActiveClass(cls)}
+                            className={`px-3 py-1.5 rounded-md text-xs font-bold transition-all border ${activeClass === cls ? 'bg-blue-600 border-blue-700 text-white shadow-md scale-105' : 'bg-white/80 border-slate-200 text-slate-700 hover:border-blue-400 hover:bg-white'}`}
+                          >{cls}</button>
+                        ))}
+                      </div>
+                      
+                      <div className="flex items-center gap-1.5 flex-wrap">
+                        <span className="text-[10px] font-bold text-purple-900 bg-white/70 px-2 py-1.5 rounded-md border border-purple-200 min-w-[50px] text-center shadow-xs">KL 9</span>
+                        {['9A', '9B', '9C', '9D', '9E', '9F', '9G', '9H', '9I', '9J', '9K'].map(cls => (
+                          <button key={cls} type="button" onClick={() => setActiveClass(cls)}
+                            className={`px-3 py-1.5 rounded-md text-xs font-bold transition-all border ${activeClass === cls ? 'bg-purple-600 border-purple-700 text-white shadow-md scale-105' : 'bg-white/80 border-slate-200 text-slate-700 hover:border-purple-400 hover:bg-white'}`}
+                          >{cls}</button>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+
+                  {(activeTab === 'jurnal' || activeTab === 'tabungan' || activeTab === 'absensi') && (
+                      <div className="lg:border-l lg:border-emerald-400/50 lg:pl-6 min-w-[200px]">
+                         <h3 className="text-xs font-black text-emerald-900 uppercase tracking-wider mb-3">Bulan Pelajaran</h3>
+                         <select 
+                            value={activeMonth}
+                            onChange={(e) => {
+                              const newMonth = e.target.value;
+                              setActiveMonth(newMonth);
+                              setActionDay(newMonth === 'Juli' ? 13 : 1);
+                            }}
+                            className="w-full px-3 py-2.5 bg-white/90 border border-emerald-300 rounded-lg font-bold text-sm text-emerald-950 focus:outline-none focus:ring-2 focus:ring-emerald-600 shadow-xs cursor-pointer"
+                          >
+                            {MONTHS.map(m => <option key={m} value={m}>{m}</option>)}
+                          </select>
+                      </div>
+                  )}
+                </div>
+
+                {(activeTab === 'jurnal' || activeTab === 'absensi') && (
+                  <div className="bg-emerald-800/10 border-t border-emerald-300 p-3 sm:px-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 relative z-0">
+                     <div className="flex items-center gap-2">
+                        <span className="text-xs font-bold text-emerald-950 mr-1">Tgl Aksi:</span>
+                        <select 
+                          value={actionDay}
+                          onChange={(e) => setActionDay(parseInt(e.target.value))}
+                          className="px-2 py-1.5 bg-white border border-emerald-300 rounded-md font-bold text-xs shadow-xs cursor-pointer"
+                        >
+                          {daysInMonth.map(d => <option key={d} value={d}>{d}</option>)}
+                        </select>
+                        <button type="button" onClick={handleHadirSemua} className="px-3 py-1.5 bg-emerald-700 text-white hover:bg-emerald-800 font-bold rounded-md text-xs transition-colors shadow-xs">Hadir Semua</button>
+                        <button type="button" onClick={handleReset} className="px-3 py-1.5 bg-red-100 text-red-700 hover:bg-red-200 font-bold rounded-md text-xs transition-colors shadow-xs">Reset</button>
+                     </div>
+                     <div className="flex items-center gap-2 w-full sm:w-auto">
+                        <button type="button" onClick={handleExportCSV} className="flex-1 sm:flex-none px-4 py-1.5 bg-white border border-slate-300 text-slate-700 hover:bg-slate-50 font-bold rounded-md text-xs shadow-xs transition-colors">
+                          Unduh CSV
+                        </button>
+                        <button 
+                          type="button" 
+                          disabled={isSyncing} 
+                          onClick={handleSyncToSpreadsheet} 
+                          className={`flex-1 sm:flex-none px-4 py-1.5 font-bold rounded-md text-xs shadow-xs transition-colors ${isSyncing ? 'bg-emerald-400 text-white cursor-not-allowed' : 'bg-emerald-700 text-white hover:bg-emerald-800'}`}
+                        >
+                          {isSyncing ? 'Mengirim...' : 'Kirim Data'}
+                        </button>
+                     </div>
+                  </div>
+                )}
+              </div>
+
+              {}
+              <div className="w-full flex justify-center mt-1 flex-wrap gap-2">
+                  <div className="inline-flex bg-white p-1.5 rounded-full shadow-sm border border-slate-200 gap-1 flex-wrap justify-center">
+                    <button 
+                      onClick={() => setActiveTab('absensi')}
+                      className={`px-4 py-2 rounded-full text-xs sm:text-sm font-bold transition-all duration-200 ${activeTab === 'absensi' ? 'bg-emerald-600 text-white shadow-md' : 'text-slate-500 hover:bg-slate-100'}`}
+                    >
+                      📋 Absensi Siswa
+                    </button>
+                    <button 
+                      onClick={() => setActiveTab('nilai')}
+                      className={`px-4 py-2 rounded-full text-xs sm:text-sm font-bold transition-all duration-200 ${activeTab === 'nilai' ? 'bg-emerald-600 text-white shadow-md' : 'text-slate-500 hover:bg-slate-100'}`}
+                    >
+                      💯 Daftar Nilai
+                    </button>
+                    <button 
+                      onClick={() => setActiveTab('tabungan')}
+                      className={`px-4 py-2 rounded-full text-xs sm:text-sm font-bold transition-all duration-200 ${activeTab === 'tabungan' ? 'bg-emerald-600 text-white shadow-md' : 'text-slate-500 hover:bg-slate-100'}`}
+                    >
+                      💰 Tabungan
+                    </button>
+                    <button 
+                      onClick={() => setActiveTab('jadwal')}
+                      className={`px-4 py-2 rounded-full text-xs sm:text-sm font-bold transition-all duration-200 ${activeTab === 'jadwal' ? 'bg-emerald-600 text-white shadow-md' : 'text-slate-500 hover:bg-slate-100'}`}
+                    >
+                      📅 Jadwal
+                    </button>
+                    <button 
+                      onClick={() => setActiveTab('jurnal')}
+                      className={`px-4 py-2 rounded-full text-xs sm:text-sm font-bold transition-all duration-200 ${activeTab === 'jurnal' ? 'bg-emerald-600 text-white shadow-md' : 'text-slate-500 hover:bg-slate-100'}`}
+                    >
+                      📝 Jurnal Mengajar
+                    </button>
+                    <button 
+                      onClick={() => setActiveTab('laporan')}
+                      className={`px-4 py-2 rounded-full text-xs sm:text-sm font-bold transition-all duration-200 ${activeTab === 'laporan' ? 'bg-emerald-600 text-white shadow-md' : 'text-slate-500 hover:bg-slate-100'}`}
+                    >
+                      📊 Laporan
+                    </button>
+                  </div>
+              </div>
+
+              {}
+              <div className="w-full">
+                
+                {/* 0. TAB: ABSENSI SISWA */}
+                {activeTab === 'absensi' && (
+                  <div className="space-y-6">
+                    <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden flex flex-col relative z-0">
+                      <div className="p-4 border-b border-slate-200 text-center flex flex-col items-center justify-center bg-white">
+                        <h2 className="text-base sm:text-lg font-black text-slate-800 uppercase">DAFTAR ABSENSI KELAS {activeClass}</h2>
+                        <h3 className="text-sm font-bold text-slate-600 uppercase">SEMESTER GANJIL TAHUN AJARAN 2026/2027</h3>
+                      </div>
+                      <div className="overflow-x-auto custom-scrollbar" style={{ maxHeight: '65vh' }}>
+                        <table className="w-full text-xs text-left border-collapse min-w-max relative z-0">
+                          <thead className="sticky top-0 z-30 shadow-sm">
+                            <tr>
+                              <th className="py-3 px-4 font-bold border-b border-r border-[#6c8e8c] sticky left-0 bg-[#7DA3A1] text-slate-900 z-30 min-w-[170px] md:min-w-[250px] shadow-[4px_0_10px_-2px_rgba(0,0,0,0.1)] uppercase tracking-wider text-[10px]">No. & Nama Siswa</th>
+                              {daysInMonth.map(day => (
+                                <th key={day} className="py-3 px-1 text-center font-bold border-b border-r border-slate-200 bg-slate-50 text-slate-500 w-12 min-w-[48px]">{day}</th>
+                              ))}
+                              <th className="py-3 px-1.5 text-center font-bold border-b border-slate-200 bg-emerald-50 text-emerald-700 w-10 min-w-[40px]">H</th>
+                              <th className="py-3 px-1.5 text-center font-bold border-b border-slate-200 bg-blue-50 text-blue-700 w-10 min-w-[40px]">I</th>
+                              <th className="py-3 px-1.5 text-center font-bold border-b border-slate-200 bg-amber-50 text-amber-700 w-10 min-w-[40px]">S</th>
+                              <th className="py-3 px-1.5 text-center font-bold border-b border-slate-200 bg-red-50 text-red-700 w-10 min-w-[40px]">A</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {currentStudents.map((student, idx) => {
+                              const rekap = getRekap(student, activeMonth, false);
+                              const safeRowId = `absensi-row-${sanitizeId(student)}`;
+                              return (
+                                <tr id={safeRowId} key={idx + student} className="hover:bg-slate-50/50 group border-b border-slate-100 last:border-b-0 transition-colors duration-300">
+                                  <td 
+                                    className="py-2 px-4 font-bold text-slate-900 border-r border-[#6c8e8c] sticky left-0 bg-[#7DA3A1] group-hover:bg-[#6c8e8c] z-20 min-w-[170px] md:min-w-[250px] truncate shadow-[4px_0_10px_-2px_rgba(0,0,0,0.08)] transition-colors" 
+                                    title={student}
+                                  >
+                                    <span className="text-slate-800 font-semibold inline-block w-4 mr-1 text-right">{idx + 1}.</span> {student}
+                                  </td>
+                                  
+                                  {daysInMonth.map(day => {
+                                    const status = attendance[`${activeClass}-${activeMonth}-${student}-${day}`];
+                                    
+                                    let bgClass = 'bg-transparent md:hover:bg-slate-100 active:bg-slate-200';
+                                    let textClass = 'text-slate-300';
+                                    
+                                    if (status === 'H') { bgClass = 'bg-emerald-50 active:bg-emerald-100'; textClass = 'text-emerald-600 font-bold'; }
+                                    else if (status === 'I') { bgClass = 'bg-blue-50 active:bg-blue-100'; textClass = 'text-blue-600 font-bold'; }
+                                    else if (status === 'S') { bgClass = 'bg-amber-50 active:bg-amber-100'; textClass = 'text-amber-600 font-bold'; }
+                                    else if (status === 'A') { bgClass = 'bg-red-50 active:bg-red-100'; textClass = 'text-red-600 font-bold'; }
+
+                                    return (
+                                      <td key={day} className="p-0 border-r border-slate-100 z-0 relative">
+                                        <button
+                                          type="button"
+                                          onClick={() => toggleAttendance(student, day, false)}
+                                          className={`w-full h-10 sm:h-8 flex items-center justify-center text-xs transition-colors cursor-pointer select-none touch-manipulation ${bgClass} ${textClass}`}
+                                        >
+                                          {status || '·'}
+                                        </button>
+                                      </td>
+                                    );
+                                  })}
+                                  <td className="py-1 px-1 text-center font-bold text-emerald-600 bg-emerald-50/30">{rekap.H || '-'}</td>
+                                  <td className="py-1 px-1 text-center font-bold text-blue-600 bg-blue-50/30">{rekap.I || '-'}</td>
+                                  <td className="py-1 px-1 text-center font-bold text-amber-600 bg-amber-50/30">{rekap.S || '-'}</td>
+                                  <td className="py-1 px-1 text-center font-bold text-red-600 bg-red-50/30">{rekap.A || '-'}</td>
+                                </tr>
+                              );
+                            })}
+                          </tbody>
+                        </table>
+                      </div>
+                      
+                      <div className="bg-white p-3 border-t border-slate-200 text-[11px] text-slate-500 flex flex-wrap justify-center sm:justify-start items-center gap-4">
+                        <div className="flex gap-4 font-semibold uppercase tracking-wider">
+                          <span className="flex items-center gap-1.5"><div className="w-2.5 h-2.5 bg-emerald-400 rounded-xs"></div> Hadir</span>
+                          <span className="flex items-center gap-1.5"><div className="w-2.5 h-2.5 bg-blue-400 rounded-xs"></div> Izin</span>
+                          <span className="flex items-center gap-1.5"><div className="w-2.5 h-2.5 bg-amber-400 rounded-xs"></div> Sakit</span>
+                          <span className="flex items-center gap-1.5"><div className="w-2.5 h-2.5 bg-red-500 rounded-xs"></div> Alpha</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {}
+                {activeTab === 'laporan' && (
+                  <div className="space-y-6">
+                    <div className="w-full flex justify-center mb-2 flex-wrap gap-2">
+                        <div className="inline-flex bg-white p-1.5 rounded-xl shadow-sm border border-slate-200 gap-1 flex-wrap justify-center w-full sm:w-auto">
+                            <button 
+                              onClick={() => setActiveReportTab('absensi')}
+                              className={`px-4 py-2 rounded-lg text-xs sm:text-sm font-bold transition-all duration-200 ${activeReportTab === 'absensi' ? 'bg-slate-800 text-white shadow-md' : 'text-slate-500 hover:bg-slate-100'}`}
+                            >
+                              📋 Absensi (Wali Kelas)
+                            </button>
+                            <button 
+                              onClick={() => setActiveReportTab('jurnal_kehadiran')}
+                              className={`px-4 py-2 rounded-lg text-xs sm:text-sm font-bold transition-all duration-200 ${activeReportTab === 'jurnal_kehadiran' ? 'bg-slate-800 text-white shadow-md' : 'text-slate-500 hover:bg-slate-100'}`}
+                            >
+                              👨‍🏫 Rekap Kehadiran (Mapel)
+                            </button>
+                            <button 
+                              onClick={() => setActiveReportTab('jurnal_materi')}
+                              className={`px-4 py-2 rounded-lg text-xs sm:text-sm font-bold transition-all duration-200 ${activeReportTab === 'jurnal_materi' ? 'bg-slate-800 text-white shadow-md' : 'text-slate-500 hover:bg-slate-100'}`}
+                            >
+                              📝 Rekap Jurnal & Materi
+                            </button>
+                            <button 
+                              onClick={() => setActiveReportTab('tabungan')}
+                              className={`px-4 py-2 rounded-lg text-xs sm:text-sm font-bold transition-all duration-200 ${activeReportTab === 'tabungan' ? 'bg-slate-800 text-white shadow-md' : 'text-slate-500 hover:bg-slate-100'}`}
+                            >
+                              💰 Tabungan
+                            </button>
+                            <button 
+                              onClick={() => setActiveReportTab('nilai')}
+                              className={`px-4 py-2 rounded-lg text-xs sm:text-sm font-bold transition-all duration-200 ${activeReportTab === 'nilai' ? 'bg-slate-800 text-white shadow-md' : 'text-slate-500 hover:bg-slate-100'}`}
+                            >
+                              💯 Daftar Nilai
+                            </button>
+                        </div>
+                    </div>
+
+                    {/* 1. Rekap Absensi Siswa (Wali Kelas) */}
+                    {activeReportTab === 'absensi' && (
+                        <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden flex flex-col relative z-0">
+                          <div className="bg-[#7DA3A1] border-b border-[#6c8e8c] p-4 flex flex-col sm:flex-row justify-between items-center gap-3">
+                            <div className="text-center sm:text-left">
+                              <h2 className="text-lg font-black text-slate-900 tracking-wide uppercase">REKAPITULASI ABSENSI SISWA KELAS {activeClass}</h2>
+                              <p className="text-sm font-semibold text-slate-800">DATA WALI KELAS • SEMESTER GANJIL TAHUN AJARAN 2026/2027</p>
+                            </div>
+                            <button type="button" onClick={handleExportRekapAbsensiCSV} className="px-4 py-2 bg-white/90 hover:bg-white text-slate-800 font-bold rounded-lg text-xs shadow-sm transition-all border border-[#6c8e8c]">
+                                Unduh CSV
+                            </button>
+                          </div>
+                          <div className="overflow-x-auto custom-scrollbar" style={{ maxHeight: '60vh' }}>
+                            <table className="w-full text-xs text-center border-collapse min-w-max">
+                              <thead className="sticky top-0 z-20 shadow-sm">
+                                <tr>
+                                  <th rowSpan="2" className="py-2 px-3 font-bold border border-slate-200 bg-slate-100 text-slate-700 w-10">No</th>
+                                  <th rowSpan="2" className="py-2 px-3 font-bold border border-slate-200 bg-slate-100 text-slate-700 min-w-[200px] text-left">Nama Siswa</th>
+                                  {REKAP_MONTHS.map(m => (
+                                    <th key={m} colSpan="4" className="py-1 px-1 font-bold border border-slate-200 bg-emerald-50 text-emerald-800">{m}</th>
+                                  ))}
+                                  <th colSpan="4" className="py-1 px-1 font-bold border border-slate-200 bg-amber-100 text-amber-900">Total SMT Ganjil</th>
+                                </tr>
+                                <tr>
+                                  {REKAP_MONTHS.map(m => (
+                                    <React.Fragment key={`${m}-cols`}>
+                                      <th className="py-1 px-2 border border-slate-200 bg-slate-50 text-emerald-600 w-8">H</th>
+                                      <th className="py-1 px-2 border border-slate-200 bg-slate-50 text-blue-600 w-8">I</th>
+                                      <th className="py-1 px-2 border border-slate-200 bg-slate-50 text-amber-600 w-8">S</th>
+                                      <th className="py-1 px-2 border border-slate-200 bg-slate-50 text-red-600 w-8">A</th>
+                                    </React.Fragment>
+                                  ))}
+                                  <th className="py-1 px-2 border border-slate-200 bg-amber-50 text-emerald-700 font-black w-10">H</th>
+                                  <th className="py-1 px-2 border border-slate-200 bg-amber-50 text-blue-700 font-black w-10">I</th>
+                                  <th className="py-1 px-2 border border-slate-200 bg-amber-50 text-amber-700 font-black w-10">S</th>
+                                  <th className="py-1 px-2 border border-slate-200 bg-amber-50 text-red-700 font-black w-10">A</th>
+                                </tr>
+                              </thead>
+                              <tbody>
+                                {currentStudents.map((student, idx) => {
+                                  const totalRekap = getTotalRekapDashboard(student, false); 
+                                  return (
+                                    <tr key={idx} className="hover:bg-slate-50 transition-colors border-b border-slate-100">
+                                      <td className="py-1.5 px-3 border border-slate-100 font-semibold">{idx + 1}</td>
+                                      <td className="py-1.5 px-3 border border-slate-100 text-left font-bold text-slate-800">{student}</td>
+                                      
+                                      {REKAP_MONTHS.map(m => {
+                                        const mRekap = getRekap(student, m, false); 
+                                        return (
+                                          <React.Fragment key={`${student}-${m}`}>
+                                            <td className="py-1.5 px-1 border border-slate-100 text-emerald-600">{mRekap.H || '-'}</td>
+                                            <td className="py-1.5 px-1 border border-slate-100 text-blue-600">{mRekap.I || '-'}</td>
+                                            <td className="py-1.5 px-1 border border-slate-100 text-amber-600">{mRekap.S || '-'}</td>
+                                            <td className="py-1.5 px-1 border border-slate-100 text-red-600">{mRekap.A || '-'}</td>
+                                          </React.Fragment>
+                                        )
+                                      })}
+                                      
+                                      <td className="py-1.5 px-1 border border-slate-200 bg-amber-50/50 text-emerald-700 font-bold">{totalRekap.H || '-'}</td>
+                                      <td className="py-1.5 px-1 border border-slate-200 bg-amber-50/50 text-blue-700 font-bold">{totalRekap.I || '-'}</td>
+                                      <td className="py-1.5 px-1 border border-slate-200 bg-amber-50/50 text-amber-700 font-bold">{totalRekap.S || '-'}</td>
+                                      <td className="py-1.5 px-1 border border-slate-200 bg-amber-50/50 text-red-700 font-bold">{totalRekap.A || '-'}</td>
+                                    </tr>
+                                  )
+                                })}
+                                {currentStudents.length === 0 && (
+                                    <tr><td colSpan="26" className="py-8 text-center text-slate-400">Pilih kelas terlebih dahulu</td></tr>
+                                )}
+                              </tbody>
+                            </table>
+                          </div>
+                        </div>
+                    )}
+
+                    {/* 2. Rekap Kehadiran Tatap Muka (Jurnal Mengajar) */}
+                    {activeReportTab === 'jurnal_kehadiran' && (
+                        <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden flex flex-col relative z-0">
+                          <div className="bg-[#b3d4e8] border-b border-[#8fb3ce] p-4 flex flex-col sm:flex-row justify-between items-center gap-3">
+                            <div className="text-center sm:text-left">
+                              <h2 className="text-lg font-black text-slate-900 tracking-wide uppercase">REKAPITULASI KEHADIRAN TATAP MUKA KELAS {activeClass}</h2>
+                              <p className="text-sm font-semibold text-slate-800">DATA JURNAL MENGAJAR GURU • SEMESTER GANJIL TAHUN AJARAN 2026/2027</p>
+                            </div>
+                            <button type="button" onClick={handleExportRekapKehadiranTatapMukaCSV} className="px-4 py-2 bg-white/90 hover:bg-white text-slate-800 font-bold rounded-lg text-xs shadow-sm transition-all border border-[#8fb3ce]">
+                                Unduh CSV
+                            </button>
+                          </div>
+                          <div className="overflow-x-auto custom-scrollbar" style={{ maxHeight: '60vh' }}>
+                            <table className="w-full text-xs text-center border-collapse min-w-max">
+                              <thead className="sticky top-0 z-20 shadow-sm">
+                                <tr>
+                                  <th rowSpan="2" className="py-2 px-3 font-bold border border-slate-200 bg-slate-100 text-slate-700 w-10">No</th>
+                                  <th rowSpan="2" className="py-2 px-3 font-bold border border-slate-200 bg-slate-100 text-slate-700 min-w-[200px] text-left">Nama Siswa</th>
+                                  {REKAP_MONTHS.map(m => (
+                                    <th key={m} colSpan="4" className="py-1 px-1 font-bold border border-slate-200 bg-blue-50 text-blue-800">{m}</th>
+                                  ))}
+                                  <th colSpan="4" className="py-1 px-1 font-bold border border-slate-200 bg-amber-100 text-amber-900">Total SMT Ganjil</th>
+                                </tr>
+                                <tr>
+                                  {REKAP_MONTHS.map(m => (
+                                    <React.Fragment key={`${m}-cols`}>
+                                      <th className="py-1 px-2 border border-slate-200 bg-slate-50 text-emerald-600 w-8">H</th>
+                                      <th className="py-1 px-2 border border-slate-200 bg-slate-50 text-blue-600 w-8">I</th>
+                                      <th className="py-1 px-2 border border-slate-200 bg-slate-50 text-amber-600 w-8">S</th>
+                                      <th className="py-1 px-2 border border-slate-200 bg-slate-50 text-red-600 w-8">A</th>
+                                    </React.Fragment>
+                                  ))}
+                                  <th className="py-1 px-2 border border-slate-200 bg-amber-50 text-emerald-700 font-black w-10">H</th>
+                                  <th className="py-1 px-2 border border-slate-200 bg-amber-50 text-blue-700 font-black w-10">I</th>
+                                  <th className="py-1 px-2 border border-slate-200 bg-amber-50 text-amber-700 font-black w-10">S</th>
+                                  <th className="py-1 px-2 border border-slate-200 bg-amber-50 text-red-700 font-black w-10">A</th>
+                                </tr>
+                              </thead>
+                              <tbody>
+                                {currentStudents.map((student, idx) => {
+                                  const totalRekap = getTotalRekapDashboard(student, true); 
+                                  return (
+                                    <tr key={idx} className="hover:bg-slate-50 transition-colors border-b border-slate-100">
+                                      <td className="py-1.5 px-3 border border-slate-100 font-semibold">{idx + 1}</td>
+                                      <td className="py-1.5 px-3 border border-slate-100 text-left font-bold text-slate-800">{student}</td>
+                                      
+                                      {REKAP_MONTHS.map(m => {
+                                        const mRekap = getRekap(student, m, true); 
+                                        return (
+                                          <React.Fragment key={`${student}-${m}`}>
+                                            <td className="py-1.5 px-1 border border-slate-100 text-emerald-600">{mRekap.H || '-'}</td>
+                                            <td className="py-1.5 px-1 border border-slate-100 text-blue-600">{mRekap.I || '-'}</td>
+                                            <td className="py-1.5 px-1 border border-slate-100 text-amber-600">{mRekap.S || '-'}</td>
+                                            <td className="py-1.5 px-1 border border-slate-100 text-red-600">{mRekap.A || '-'}</td>
+                                          </React.Fragment>
+                                        )
+                                      })}
+                                      
+                                      <td className="py-1.5 px-1 border border-slate-200 bg-amber-50/50 text-emerald-700 font-bold">{totalRekap.H || '-'}</td>
+                                      <td className="py-1.5 px-1 border border-slate-200 bg-amber-50/50 text-blue-700 font-bold">{totalRekap.I || '-'}</td>
+                                      <td className="py-1.5 px-1 border border-slate-200 bg-amber-50/50 text-amber-700 font-bold">{totalRekap.S || '-'}</td>
+                                      <td className="py-1.5 px-1 border border-slate-200 bg-amber-50/50 text-red-700 font-bold">{totalRekap.A || '-'}</td>
+                                    </tr>
+                                  )
+                                })}
+                                {currentStudents.length === 0 && (
+                                    <tr><td colSpan="26" className="py-8 text-center text-slate-400">Pilih kelas terlebih dahulu</td></tr>
+                                )}
+                              </tbody>
+                            </table>
+                          </div>
+                        </div>
+                    )}
+
+                    {/* 3. Rekap Materi Jurnal Mengajar Card */}
+                    {activeReportTab === 'jurnal_materi' && (
+                        <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden flex flex-col relative z-0">
+                          <div className="bg-[#A5C8E4] border-b border-[#8fb3ce] p-4 flex flex-col sm:flex-row justify-between items-center gap-3">
+                            <div className="text-center sm:text-left">
+                              <h2 className="text-lg font-black text-slate-900 tracking-wide uppercase">REKAPITULASI MATERI JURNAL MENGAJAR KELAS {activeClass}</h2>
+                              <p className="text-sm font-semibold text-slate-800">DATA JURNAL MENGAJAR GURU • SEMESTER GANJIL TAHUN AJARAN 2026/2027</p>
+                            </div>
+                            <button type="button" onClick={handleExportRekapJurnalCSV} className="px-4 py-2 bg-white/90 hover:bg-white text-slate-800 font-bold rounded-lg text-xs shadow-sm transition-all border border-[#8fb3ce]">
+                                Unduh CSV
+                            </button>
+                          </div>
+                          <div className="overflow-x-auto custom-scrollbar" style={{ maxHeight: '50vh' }}>
+                            <table className="w-full text-sm text-left border-collapse min-w-max">
+                              <thead className="sticky top-0 z-20 shadow-sm">
+                                <tr>
+                                  <th rowSpan="2" className="py-2 px-3 font-bold border border-slate-200 bg-slate-50 text-slate-700 w-10 text-center align-middle">No</th>
+                                  <th rowSpan="2" className="py-2 px-3 font-bold border border-slate-200 bg-slate-50 text-slate-700 w-28 align-middle">Bulan</th>
+                                  <th rowSpan="2" className="py-2 px-3 font-bold border border-slate-200 bg-slate-50 text-slate-700 w-24 align-middle">Tanggal</th>
+                                  <th rowSpan="2" className="py-2 px-4 font-bold border border-slate-200 bg-slate-50 text-slate-700 min-w-[250px] align-middle">Materi Pokok / Sub Pokok Bahasan</th>
+                                  <th colSpan="4" className="py-1 px-2 font-bold border border-slate-200 bg-slate-100 text-slate-800 text-center border-b-0">Jml Kehadiran</th>
+                                  <th rowSpan="2" className="py-2 px-4 font-bold border border-slate-200 bg-slate-50 text-slate-700 min-w-[200px] align-middle">Siswa Tidak Hadir (S, I, A)</th>
+                                </tr>
+                                <tr>
+                                  <th className="py-1 px-2 font-bold border border-slate-200 bg-emerald-50 text-emerald-700 w-10 text-center text-xs">H</th>
+                                  <th className="py-1 px-2 font-bold border border-slate-200 bg-blue-50 text-blue-700 w-10 text-center text-xs">I</th>
+                                  <th className="py-1 px-2 font-bold border border-slate-200 bg-amber-50 text-amber-700 w-10 text-center text-xs">S</th>
+                                  <th className="py-1 px-2 font-bold border border-slate-200 bg-red-50 text-red-700 w-10 text-center text-xs">A</th>
+                                </tr>
+                              </thead>
+                              <tbody>
+                                {(() => {
+                                    const entries = getJurnalEntries();
+                                    if (entries.length === 0) {
+                                        return (
+                                            <tr><td colSpan="9" className="py-8 text-center text-slate-400 font-medium">Belum ada catatan jurnal mengajar yang diisi pada semester ini.</td></tr>
+                                        );
+                                    }
+                                    return entries.map((entry, idx) => (
+                                        <tr key={idx} className="hover:bg-slate-50 transition-colors border-b border-slate-100">
+                                            <td className="py-2 px-3 border border-slate-100 text-center font-medium text-xs">{idx + 1}</td>
+                                            <td className="py-2 px-3 border border-slate-100 font-bold text-[#4a728f] text-xs">{entry.month}</td>
+                                            <td className="py-2 px-3 border border-slate-100 font-semibold text-slate-800 text-xs">Tgl {entry.day}</td>
+                                            <td className="py-2 px-4 border border-slate-100 whitespace-pre-wrap text-xs text-slate-700">{entry.note}</td>
+                                            <td className="py-2 px-2 border border-slate-100 text-center font-bold text-emerald-600 bg-emerald-50/30 text-xs">{entry.counts.H || '-'}</td>
+                                            <td className="py-2 px-2 border border-slate-100 text-center font-bold text-blue-600 bg-blue-50/30 text-xs">{entry.counts.I || '-'}</td>
+                                            <td className="py-2 px-2 border border-slate-100 text-center font-bold text-amber-600 bg-amber-50/30 text-xs">{entry.counts.S || '-'}</td>
+                                            <td className="py-2 px-2 border border-slate-100 text-center font-bold text-red-600 bg-red-50/30 text-xs">{entry.counts.A || '-'}</td>
+                                            <td className={`py-2 px-4 border border-slate-100 text-[11px] font-medium leading-relaxed ${entry.absentees === '-' ? 'text-emerald-600/70 italic' : 'text-red-700'}`}>
+                                                {entry.absentees}
+                                            </td>
+                                        </tr>
+                                    ));
+                                })()}
+                              </tbody>
+                            </table>
+                          </div>
+                        </div>
+                    )}
+
+                    {/* 4. Rekap Tabungan Card */}
+                    {activeReportTab === 'tabungan' && (
+                        <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden flex flex-col relative z-0">
+                          <div className="bg-amber-100 border-b border-amber-200 p-4 flex flex-col sm:flex-row justify-between items-center gap-3">
+                            <div className="text-center sm:text-left">
+                              <h2 className="text-lg font-black text-amber-900 tracking-wide uppercase">REKAPITULASI TABUNGAN KELAS {activeClass}</h2>
+                              <p className="text-sm font-semibold text-amber-800">SEMESTER GANJIL TAHUN AJARAN 2026/2027</p>
+                            </div>
+                            <button type="button" onClick={handleExportRekapTabunganCSV} className="px-4 py-2 bg-white/90 hover:bg-white text-amber-900 font-bold rounded-lg text-xs shadow-sm transition-all border border-amber-300">
+                                Unduh CSV
+                            </button>
+                          </div>
+                          <div className="overflow-x-auto custom-scrollbar" style={{ maxHeight: '50vh' }}>
+                            <table className="w-full text-xs text-right border-collapse min-w-max">
+                              <thead className="sticky top-0 z-20 shadow-sm">
+                                <tr>
+                                  <th className="py-2 px-3 font-bold border border-slate-200 bg-slate-50 text-slate-700 w-10 text-center">No</th>
+                                  <th className="py-2 px-3 font-bold border border-slate-200 bg-slate-50 text-slate-700 min-w-[200px] text-left">Nama Siswa</th>
+                                  {REKAP_MONTHS.map(m => (
+                                    <th key={m} className="py-2 px-3 font-bold border border-slate-200 bg-emerald-50 text-emerald-800 min-w-[100px] text-right">{m}</th>
+                                  ))}
+                                  <th className="py-2 px-4 font-black border border-slate-200 bg-amber-200 text-amber-900 min-w-[120px] text-right">Total Tabungan</th>
+                                </tr>
+                              </thead>
+                              <tbody>
+                                {currentStudents.map((student, idx) => {
+                                  let semTotal = 0;
+                                  return (
+                                    <tr key={idx} className="hover:bg-slate-50 transition-colors border-b border-slate-100">
+                                      <td className="py-2 px-3 border border-slate-100 font-semibold text-center">{idx + 1}</td>
+                                      <td className="py-2 px-3 border border-slate-100 text-left font-bold text-slate-800">{student}</td>
+                                      
+                                      {REKAP_MONTHS.map(m => {
+                                        const mTotal = getStudentTotalSavings(student, m);
+                                        semTotal += mTotal;
+                                        return (
+                                          <td key={`${student}-${m}`} className="py-2 px-3 border border-slate-100 font-medium text-slate-700">
+                                            {mTotal > 0 ? `Rp ${mTotal.toLocaleString('id-ID')}` : '-'}
+                                          </td>
+                                        )
+                                      })}
+                                      
+                                      <td className="py-2 px-4 border border-slate-200 bg-amber-50/50 text-amber-900 font-black">
+                                        {semTotal > 0 ? `Rp ${semTotal.toLocaleString('id-ID')}` : '-'}
+                                      </td>
+                                    </tr>
+                                  )
+                                })}
+                                {currentStudents.length === 0 && (
+                                    <tr><td colSpan="8" className="py-8 text-center text-slate-400">Pilih kelas terlebih dahulu</td></tr>
+                                )}
+                              </tbody>
+                              {currentStudents.length > 0 && (
+                                <tfoot className="bg-slate-100 font-bold border-t-2 border-slate-300 relative z-10">
+                                  <tr>
+                                    <td colSpan="2" className="py-3 px-4 text-slate-800 text-right">TOTAL TABUNGAN KELAS:</td>
+                                    {REKAP_MONTHS.map(m => {
+                                      let monthGrandTotal = 0;
+                                      currentStudents.forEach(st => { monthGrandTotal += getStudentTotalSavings(st, m); });
+                                      return (
+                                        <td key={`total-${m}`} className="py-3 px-3 text-emerald-800 font-bold text-xs border border-slate-200">
+                                          Rp {monthGrandTotal.toLocaleString('id-ID')}
+                                        </td>
+                                      )
+                                    })}
+                                    <td className="py-3 px-4 text-amber-900 font-black text-sm border border-slate-200 bg-amber-200/50">
+                                      Rp {
+                                        currentStudents.reduce((acc, st) => {
+                                          let stTot = 0;
+                                          REKAP_MONTHS.forEach(m => stTot += getStudentTotalSavings(st, m));
+                                          return acc + stTot;
+                                        }, 0).toLocaleString('id-ID')
+                                      }
+                                    </td>
+                                  </tr>
+                                </tfoot>
+                              )}
+                            </table>
+                          </div>
+                        </div>
+                    )}
+
+                    {/* 5. Rekap Daftar Nilai Card */}
+                    {activeReportTab === 'nilai' && (
+                        <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden flex flex-col relative z-0">
+                          <div className="bg-[#C5E0B4] border-b border-[#a9c996] p-4 flex flex-col sm:flex-row justify-between items-center gap-3">
+                            <div className="text-center sm:text-left">
+                              <h2 className="text-lg font-black text-slate-900 tracking-wide uppercase">REKAPITULASI DAFTAR NILAI KELAS {activeClass}</h2>
+                              <p className="text-sm font-semibold text-slate-800">SEMESTER GANJIL TAHUN AJARAN 2026/2027</p>
+                            </div>
+                            <button type="button" onClick={handleExportGradesCSV} className="px-4 py-2 bg-white/90 hover:bg-white text-slate-800 font-bold rounded-lg text-xs shadow-sm transition-all border border-[#a9c996]">
+                                Unduh CSV
+                            </button>
+                          </div>
+                          
+                          <div className="overflow-x-auto custom-scrollbar" style={{ maxHeight: '65vh' }}>
+                            <table className="w-full text-xs text-center border-collapse min-w-max border border-slate-300">
+                              <thead className="sticky top-0 z-20 shadow-sm">
+                                <tr>
+                                  <th rowSpan="2" className="py-2 px-3 font-bold border border-slate-300 bg-white text-slate-700 w-10">No</th>
+                                  <th rowSpan="2" className="py-2 px-3 font-bold border border-slate-300 bg-white text-slate-700 min-w-[200px] md:min-w-[250px] text-left">Nama Siswa</th>
+                                  <th colSpan="5" className="py-1 px-1 font-bold border border-slate-300 bg-[#92D050] text-slate-900">Sumatif</th>
+                                  <th rowSpan="2" className="py-2 px-2 font-bold border border-slate-300 bg-[#92D050] text-slate-900 min-w-[40px]">ASTS</th>
+                                  <th rowSpan="2" className="py-2 px-2 font-bold border border-slate-300 bg-white text-slate-700 min-w-[40px]">Jml</th>
+                                  <th rowSpan="2" className="py-2 px-2 font-bold border border-slate-300 bg-white text-slate-700 min-w-[40px]">Rata2</th>
+                                  <th rowSpan="2" className="py-2 px-2 font-bold border border-slate-300 bg-white text-slate-700 min-w-[40px]">80%</th>
+                                  <th rowSpan="2" className="py-2 px-2 font-bold border border-slate-300 bg-[#92D050] text-slate-900 min-w-[40px]">ASAS</th>
+                                  <th rowSpan="2" className="py-2 px-2 font-bold border border-slate-300 bg-white text-slate-700 min-w-[40px]">20%</th>
+                                  <th rowSpan="2" className="py-2 px-2 font-bold border border-slate-300 bg-white text-slate-700 min-w-[50px]">Nilai Akhir<br/>Rapor</th>
+                                </tr>
+                                <tr>
+                                  <th className="py-1 px-2 border border-slate-300 bg-[#92D050] text-slate-900 w-10">1</th>
+                                  <th className="py-1 px-2 border border-slate-300 bg-[#92D050] text-slate-900 w-10">2</th>
+                                  <th className="py-1 px-2 border border-slate-300 bg-[#92D050] text-slate-900 w-10">3</th>
+                                  <th className="py-1 px-2 border border-slate-300 bg-[#92D050] text-slate-900 w-10">4</th>
+                                  <th className="py-1 px-2 border border-slate-300 bg-[#92D050] text-slate-900 w-10">5</th>
+                                </tr>
+                              </thead>
+                              <tbody>
+                                {currentStudents.map((student, idx) => {
+                                    const key = `${activeClass}-${student}`;
+                                    const data = gradesData[key] || {};
+                                    const calc = calculateGrades(student);
+
+                                    return (
+                                      <tr key={idx} className="hover:bg-slate-50 transition-colors border-b border-slate-300">
+                                          <td className="py-1.5 px-3 border border-slate-300 font-semibold bg-white">{idx + 1}</td>
+                                          <td className="py-1.5 px-3 border border-slate-300 text-left font-bold text-slate-800 bg-white">{student}</td>
+                                          
+                                          <td className="py-1.5 px-1 border border-slate-300 font-medium text-slate-700">{data.s1 || '-'}</td>
+                                          <td className="py-1.5 px-1 border border-slate-300 font-medium text-slate-700">{data.s2 || '-'}</td>
+                                          <td className="py-1.5 px-1 border border-slate-300 font-medium text-slate-700">{data.s3 || '-'}</td>
+                                          <td className="py-1.5 px-1 border border-slate-300 font-medium text-slate-700">{data.s4 || '-'}</td>
+                                          <td className="py-1.5 px-1 border border-slate-300 font-medium text-slate-700">{data.s5 || '-'}</td>
+                                          
+                                          <td className="py-1.5 px-1 border border-slate-300 font-bold text-slate-800 bg-[#f1f8eb]">{data.asts || '-'}</td>
+                                          
+                                          <td className="py-1.5 px-1 border border-slate-300 font-medium text-slate-700">{calc.jml || '-'}</td>
+                                          <td className="py-1.5 px-1 border border-slate-300 font-medium text-slate-700">{calc.rata2 ? calc.rata2.toFixed(1) : '-'}</td>
+                                          <td className="py-1.5 px-1 border border-slate-300 font-medium text-slate-700">{calc.p80 ? calc.p80.toFixed(1) : '-'}</td>
+                                          
+                                          <td className="py-1.5 px-1 border border-slate-300 font-bold text-slate-800 bg-[#f1f8eb]">{data.asas || '-'}</td>
+                                          
+                                          <td className="py-1.5 px-1 border border-slate-300 font-medium text-slate-700">{calc.p20 ? calc.p20.toFixed(1) : '-'}</td>
+                                          <td className="py-1.5 px-2 border border-slate-300 font-black text-slate-900 bg-emerald-100 text-sm">{Math.round(calc.na) || '-'}</td>
+                                      </tr>
+                                    );
+                                })}
+                                {currentStudents.length === 0 && (
+                                    <tr><td colSpan="14" className="py-8 text-center text-slate-400">Pilih kelas terlebih dahulu</td></tr>
+                                )}
+                              </tbody>
+                            </table>
+                          </div>
+                        </div>
+                    )}
+
+                  </div>
+                )}
+
+                {/* 3. TAB: JURNAL */}
+                {activeTab === 'jurnal' && (
+                  <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden flex flex-col relative z-0">
+                    <div className="overflow-x-auto custom-scrollbar" style={{ maxHeight: '65vh' }}>
+                      <table className="w-full text-xs text-left border-collapse min-w-max relative z-0">
+                        <thead className="sticky top-0 z-30 shadow-sm">
+                          <tr>
+                            <th className="py-3 px-4 font-bold border-b border-r border-[#6c8e8c] sticky left-0 bg-[#7DA3A1] text-slate-900 z-30 min-w-[170px] md:min-w-[220px] max-w-[170px] md:max-w-[220px] shadow-[4px_0_10px_-2px_rgba(0,0,0,0.1)] uppercase tracking-wider text-[10px]">No. & Nama Siswa</th>
+                            <th className="py-3 px-4 font-bold border-b border-r border-slate-200 md:sticky md:left-[220px] bg-slate-100 text-slate-700 z-20 min-w-[200px] md:min-w-[280px] max-w-[200px] md:max-w-[280px] md:shadow-[4px_0_10px_-2px_rgba(0,0,0,0.05)] uppercase tracking-wider text-[10px]">Materi Pokok Bahasan</th>
+                            {daysInMonth.map(day => (
+                              <th key={day} className="py-3 px-1 text-center font-bold border-b border-r border-slate-200 bg-slate-50 text-slate-500 w-12 min-w-[48px]">{day}</th>
+                            ))}
+                            <th className="py-3 px-1.5 text-center font-bold border-b border-slate-200 bg-emerald-50 text-emerald-700 w-10 min-w-[40px]">H</th>
+                            <th className="py-3 px-1.5 text-center font-bold border-b border-slate-200 bg-blue-50 text-blue-700 w-10 min-w-[40px]">I</th>
+                            <th className="py-3 px-1.5 text-center font-bold border-b border-slate-200 bg-amber-50 text-amber-700 w-10 min-w-[40px]">S</th>
+                            <th className="py-3 px-1.5 text-center font-bold border-b border-slate-200 bg-red-50 text-red-700 w-10 min-w-[40px]">A</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {currentStudents.map((student, idx) => {
+                            const rekap = getRekap(student, activeMonth, true); 
+                            const safeRowId = `row-${sanitizeId(student)}`;
+                            return (
+                              <tr id={safeRowId} key={idx + student} className="hover:bg-slate-50/50 group border-b border-slate-100 last:border-b-0 transition-colors duration-300">
+                                <td 
+                                  className="py-2 px-4 font-bold text-slate-900 border-r border-[#6c8e8c] sticky left-0 bg-[#7DA3A1] group-hover:bg-[#6c8e8c] z-20 min-w-[170px] md:min-w-[220px] max-w-[170px] md:max-w-[220px] truncate shadow-[4px_0_10px_-2px_rgba(0,0,0,0.08)] transition-colors" 
+                                  title={student}
+                                >
+                                  <span className="text-slate-800 font-semibold inline-block w-4 mr-1 text-right">{idx + 1}.</span> {student}
+                                </td>
+                                
+                                {idx === 0 && (
+                                  <td rowSpan={currentStudents.length} className="p-0 border-r border-slate-100 md:sticky md:left-[220px] bg-amber-50/20 z-10 min-w-[200px] md:min-w-[280px] max-w-[200px] md:max-w-[280px] align-top md:shadow-[4px_0_10px_-2px_rgba(0,0,0,0.02)]">
+                                    <textarea 
+                                      value={classNotes[`${activeClass}-${activeMonth}-${actionDay}-materi`] || ''}
+                                      onChange={(e) => handleNoteChange('materi', e.target.value)}
+                                      className="w-full h-full min-h-[500px] p-3 text-xs bg-transparent outline-none resize-none text-slate-700 placeholder-slate-400 leading-relaxed"
+                                      placeholder={`Catatan materi untuk tanggal ${actionDay}...`}
+                                    />
+                                  </td>
+                                )}
+                                
+                                {daysInMonth.map(day => {
+                                  const status = attendanceJurnal[`${activeClass}-${activeMonth}-${student}-${day}`];
+                                  
+                                  let bgClass = 'bg-transparent md:hover:bg-slate-100 active:bg-slate-200';
+                                  let textClass = 'text-slate-300';
+                                  
+                                  if (status === 'H') { bgClass = 'bg-emerald-50 active:bg-emerald-100'; textClass = 'text-emerald-600 font-bold'; }
+                                  else if (status === 'I') { bgClass = 'bg-blue-50 active:bg-blue-100'; textClass = 'text-blue-600 font-bold'; }
+                                  else if (status === 'S') { bgClass = 'bg-amber-50 active:bg-amber-100'; textClass = 'text-amber-600 font-bold'; }
+                                  else if (status === 'A') { bgClass = 'bg-red-50 active:bg-red-100'; textClass = 'text-red-600 font-bold'; }
+
+                                  return (
+                                    <td key={day} className="p-0 border-r border-slate-100 z-0 relative">
+                                      <button
+                                        type="button"
+                                        onClick={() => toggleAttendance(student, day, true)} 
+                                        className={`w-full h-10 sm:h-8 flex items-center justify-center text-xs transition-colors cursor-pointer select-none touch-manipulation ${bgClass} ${textClass}`}
+                                      >
+                                        {status || '·'}
+                                      </button>
+                                    </td>
+                                  );
+                                })}
+                                <td className="py-1 px-1 text-center font-bold text-emerald-600 bg-emerald-50/30">{rekap.H || '-'}</td>
+                                <td className="py-1 px-1 text-center font-bold text-blue-600 bg-blue-50/30">{rekap.I || '-'}</td>
+                                <td className="py-1 px-1 text-center font-bold text-amber-600 bg-amber-50/30">{rekap.S || '-'}</td>
+                                <td className="py-1 px-1 text-center font-bold text-red-600 bg-red-50/30">{rekap.A || '-'}</td>
+                              </tr>
+                            );
+                          })}
+                        </tbody>
+                      </table>
+                    </div>
+                    
+                    <div className="bg-white p-3 border-t border-slate-200 text-[11px] text-slate-500 flex flex-wrap justify-center sm:justify-start items-center gap-4">
+                      <div className="flex gap-4 font-semibold uppercase tracking-wider">
+                        <span className="flex items-center gap-1.5"><div className="w-2.5 h-2.5 bg-emerald-400 rounded-xs"></div> Hadir</span>
+                        <span className="flex items-center gap-1.5"><div className="w-2.5 h-2.5 bg-blue-400 rounded-xs"></div> Izin</span>
+                        <span className="flex items-center gap-1.5"><div className="w-2.5 h-2.5 bg-amber-400 rounded-xs"></div> Sakit</span>
+                        <span className="flex items-center gap-1.5"><div className="w-2.5 h-2.5 bg-red-500 rounded-xs"></div> Alpha</span>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* 4. TAB: JADWAL PELAJARAN */}
+                {activeTab === 'jadwal' && (
+                  <div className="space-y-4">
+                    <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-4 flex flex-col sm:flex-row justify-between items-center gap-3">
+                        <h2 className="text-sm font-bold text-slate-800">📅 Jadwal Pelajaran</h2>
+                        <button 
+                            type="button" 
+                            disabled={isSyncing} 
+                            onClick={handleSyncJadwal} 
+                            className={`px-4 py-2 font-bold rounded-lg text-xs shadow-xs transition-all ${isSyncing ? 'bg-emerald-400 text-white cursor-not-allowed' : 'bg-emerald-600 hover:bg-emerald-700 text-white'}`}
+                        >
+                            {isSyncing ? 'Mengirim...' : 'Kirim Data Jadwal'}
+                        </button>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+                      {SCHEDULE_DATA.map((dayData, idx) => (
+                        <div key={idx} className="bg-white rounded-xl shadow-xs border border-slate-200 overflow-hidden">
+                          <div className="bg-slate-50 border-b border-slate-200 px-4 py-2.5">
+                              <h2 className="text-sm font-black text-slate-700 uppercase tracking-widest">{dayData.day}</h2>
+                          </div>
+                          <div className="p-0">
+                            <table className="w-full text-xs text-left">
+                                <thead className="bg-white text-slate-400">
+                                    <tr>
+                                        <th className="border-b border-slate-100 py-2 px-3 font-semibold w-12">Jam</th>
+                                        <th className="border-b border-slate-100 py-2 px-3 font-semibold w-28">Waktu</th>
+                                        <th className="border-b border-slate-100 py-2 px-3 font-semibold w-16">Kelas</th>
+                                        <th className="border-b border-slate-100 py-2 px-3 font-semibold">Mapel</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {dayData.rows.map((row, rIdx) => {
+                                        const isBreak = ['Break', 'MBG', 'Dhuhur', 'Pembiasaan', 'Literasi', 'Upc'].includes(row.jam);
+                                        return (
+                                          <tr key={rIdx} className={`border-b border-slate-50 last:border-b-0 ${isBreak ? 'bg-slate-50/80 text-slate-500 italic' : 'hover:bg-emerald-50/50 text-slate-700'}`}>
+                                              <td className="py-2 px-3 font-medium">{row.jam}</td>
+                                              <td className="py-2 px-3">{row.waktu}</td>
+                                              <td className="py-2 px-3 font-bold text-emerald-600">{row.kelas}</td>
+                                              <td className="py-2 px-3">{row.mapel}</td>
+                                          </tr>
+                                        )
+                                    })}
+                                </tbody>
+                            </table>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* 5. TAB: TABUNGAN */}
+                {activeTab === 'tabungan' && (
+                   <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden flex flex-col relative z-0">
+                      <div className="bg-amber-50/50 border-b border-amber-100 p-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                          <div>
+                              <h2 className="text-sm font-bold text-amber-800 flex items-center gap-2">
+                                  💳 Pencatatan Tabungan Siswa - Kelas {activeClass} ({activeMonth})
+                              </h2>
+                              <p className="text-xs text-amber-600 mt-1">Gunakan tabel ini untuk mencatat tabungan. Pilih tanggal di sebelah kanan untuk input harian.</p>
+                          </div>
+                          <div className="flex flex-wrap items-center gap-3 w-full sm:w-auto relative z-10">
+                              <div className="flex items-center gap-2 bg-white px-3 py-1.5 rounded-lg border border-amber-200 shadow-xs flex-1 sm:flex-none justify-center">
+                                  <span className="text-xs font-bold text-amber-800">Tgl Nabung:</span>
+                                  <select
+                                      value={actionDay}
+                                      onChange={(e) => setActionDay(parseInt(e.target.value))}
+                                      className="bg-transparent text-sm font-bold text-amber-900 focus:outline-none cursor-pointer"
+                                  >
+                                      {daysInMonth.map(d => <option key={d} value={d}>{d}</option>)}
+                                  </select>
+                              </div>
+                              <button
+                                  type="button"
+                                  disabled={isSyncing}
+                                  onClick={handleSyncSavings}
+                                  className={`px-4 py-2 font-bold rounded-lg text-xs shadow-xs transition-all touch-manipulation whitespace-nowrap flex-1 sm:flex-none ${isSyncing ? 'bg-emerald-400 text-white cursor-not-allowed' : 'bg-emerald-600 hover:bg-emerald-700 text-white'}`}
+                              >
+                                  {isSyncing ? 'Mengirim...' : 'Kirim Data'}
+                              </button>
+                          </div>
+                      </div>
+                      <div className="overflow-x-auto custom-scrollbar" style={{ maxHeight: '60vh' }}>
+                          <table className="w-full text-sm text-left relative z-0">
+                              <thead className="sticky top-0 z-20 shadow-xs">
+                                  <tr>
+                                      <th className="py-3 px-4 font-bold border-b border-slate-200 w-12 text-center bg-[#7DA3A1] text-slate-900">No.</th>
+                                      <th className="py-3 px-4 font-bold border-b border-slate-200 min-w-[200px] bg-[#7DA3A1] text-slate-900">Nama Siswa</th>
+                                      <th className="py-3 px-4 font-bold border-b border-slate-200 bg-slate-50 text-slate-700 min-w-[180px]">Nominal Tabungan (Tgl {actionDay})</th>
+                                      <th className="py-3 px-4 font-bold border-b border-slate-200 bg-amber-100 text-amber-900 min-w-[160px] text-right">Total Bulanan</th>
+                                  </tr>
+                              </thead>
+                              <tbody>
+                                  {currentStudents.map((student, idx) => {
+                                      const key = `${activeClass}-${activeMonth}-${student}-${actionDay}`;
+                                      const studentTotal = getStudentTotalSavings(student);
+                                      const safeTabRowId = `tab-row-${sanitizeId(student)}`;
+                                      return (
+                                          <tr id={safeTabRowId} key={idx} className="border-b border-slate-100 hover:bg-slate-50 transition-colors duration-300">
+                                              <td className="py-2 px-4 text-center font-bold text-slate-800 bg-[#7DA3A1]">{idx + 1}</td>
+                                              <td className="py-2 px-4 font-bold text-slate-900 bg-[#7DA3A1]">{student}</td>
+                                              <td className="py-2 px-4">
+                                                  <div className="flex items-center gap-2 max-w-[200px]">
+                                                      <span className="text-slate-400 text-xs font-bold">Rp</span>
+                                                      <input 
+                                                          type="number"
+                                                          placeholder="0"
+                                                          value={savingsData[key] || ''}
+                                                          onChange={(e) => handleSavingChange(student, e.target.value)}
+                                                          className="w-full px-3 py-1.5 border border-slate-200 rounded-md bg-white text-slate-700 font-semibold focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500"
+                                                      />
+                                                  </div>
+                                              </td>
+                                              <td className="py-2 px-4 text-right font-bold text-emerald-700 bg-amber-50/30">
+                                                  Rp {studentTotal.toLocaleString('id-ID')}
+                                              </td>
+                                          </tr>
+                                      );
+                                  })}
+                                  {currentStudents.length === 0 && (
+                                      <tr><td colSpan="4" className="py-8 text-center text-slate-400">Pilih kelas terlebih dahulu atau Tambah Siswa Baru</td></tr>
+                                  )}
+                              </tbody>
+                              {currentStudents.length > 0 && (
+                                <tfoot className="bg-slate-100 font-bold border-t-2 border-slate-300 relative z-10">
+                                  <tr>
+                                    <td colSpan="2" className="py-3 px-4 text-slate-800 text-right">TOTAL HARIAN (TGL {actionDay}):</td>
+                                    <td className="py-3 px-4 text-emerald-800 font-extrabold text-base">
+                                      Rp {getDailyTotalSavings(actionDay).toLocaleString('id-ID')}
+                                    </td>
+                                    <td className="py-3 px-4 text-right text-emerald-900 font-black text-base bg-amber-200/50">
+                                      Rp {currentStudents.reduce((acc, st) => acc + getStudentTotalSavings(st), 0).toLocaleString('id-ID')}
+                                    </td>
+                                  </tr>
+                                </tfoot>
+                              )}
+                          </table>
+                      </div>
+                   </div>
+                )}
+
+              </div>
+            </div>
+          );
+        }
+
+        const root = window.ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>
